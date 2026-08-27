@@ -34,7 +34,7 @@ async function loadRsvps(): Promise<{ rows: Row[]; error?: string }> {
   try {
     const db = await getDb();
     const { rows } = await db.query(
-      `select first_name, last_name, branch, confirmed, created_at from rsvps order by created_at desc`
+      `select first_name, last_name, branch, confirmed, created_at from rsvps where first_name is not null and first_name != '' order by created_at desc`
     );
     return { rows };
   } catch {
