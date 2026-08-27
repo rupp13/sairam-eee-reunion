@@ -2,13 +2,25 @@ import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-type Row = { name: string; branch: string | null; guests: number; created_at: string };
+type Row = {
+  first_name: string;
+  last_name: string;
+  branch: string | null;
+  confirmed: string | null;
+  created_at: string;
+};
+
+const CONFIRMED_LABEL: Record<string, string> = {
+  yes: "Confirmed",
+  maybe: "Not sure yet",
+  no: "Can't make it",
+};
 
 async function loadRsvps(): Promise<{ rows: Row[]; error?: string }> {
   try {
     const db = await getDb();
     const { rows } = await db.query(
-      `select name, branch, guests, created_at from rsvps order by created_at desc`
+      `select first_name, last_name, branch, confirmed, created_at from rsvps order by created_at desc`
     );
     return { rows };
   } catch {
@@ -18,7 +30,7 @@ async function loadRsvps(): Promise<{ rows: Row[]; error?: string }> {
 
 export default async function RsvpListPage() {
   const { rows, error } = await loadRsvps();
-  const totalGuests = rows.reduce((sum, r) => sum + (r.guests || 0), 0);
+  const confirmedCount = rows.filter((r) => r.confirmed === "yes").length;
 
   return (
     <section className="mx-auto max-w-2xl px-6 py-20">
@@ -30,7 +42,7 @@ export default async function RsvpListPage() {
       </h1>
       <p className="mt-4 text-paper-dim">
         {rows.length > 0
-          ? `${rows.length} ${rows.length === 1 ? "RSVP" : "RSVPs"} confirmed \u00b7 ${totalGuests} total attending.`
+          ? `${rows.length} ${rows.length === 1 ? "response" : "responses"} \u00b7 ${confirmedCount} confirmed.`
           : "No RSVPs yet \u2014 be the first to confirm."}
       </p>
 
@@ -48,7 +60,7 @@ export default async function RsvpListPage() {
               className="flex items-center justify-between px-5 py-4"
             >
               <span className="text-paper">
-                {r.name}
+                {r.first_name} {r.last_name}
                 {r.branch && (
                   <span className="ml-2 text-xs uppercase tracking-wide text-brass">
                     {r.branch}
@@ -56,7 +68,7 @@ export default async function RsvpListPage() {
                 )}
               </span>
               <span className="text-sm text-paper-dim">
-                {r.guests} {r.guests === 1 ? "guest" : "guests"}
+                {r.confirmed ? CONFIRMED_LABEL[r.confirmed] ?? r.confirmed : "—"}
               </span>
             </div>
           ))}

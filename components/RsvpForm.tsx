@@ -15,13 +15,12 @@ export default function RsvpForm() {
 
     const form = e.currentTarget;
     const data = {
-      name: (form.elements.namedItem("name") as HTMLInputElement).value,
-      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      firstName: (form.elements.namedItem("firstName") as HTMLInputElement)
+        .value,
+      lastName: (form.elements.namedItem("lastName") as HTMLInputElement)
+        .value,
       branch: (form.elements.namedItem("branch") as HTMLSelectElement).value,
-      guests: Number(
-        (form.elements.namedItem("guests") as HTMLInputElement).value || 1
-      ),
-      message: (form.elements.namedItem("message") as HTMLTextAreaElement)
+      confirmed: (form.elements.namedItem("confirmed") as HTMLSelectElement)
         .value,
     };
 
@@ -56,36 +55,36 @@ export default function RsvpForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label htmlFor="name" className="text-sm text-paper-dim">
-          Full name
+        <label htmlFor="firstName" className="text-sm text-paper-dim">
+          First name
         </label>
         <input
-          id="name"
-          name="name"
+          id="firstName"
+          name="firstName"
           type="text"
           required
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
-          placeholder="Your name"
+          placeholder="Your first name"
         />
       </div>
 
       <div>
-        <label htmlFor="email" className="text-sm text-paper-dim">
-          Email
+        <label htmlFor="lastName" className="text-sm text-paper-dim">
+          Last name
         </label>
         <input
-          id="email"
-          name="email"
-          type="email"
+          id="lastName"
+          name="lastName"
+          type="text"
           required
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
-          placeholder="you@example.com"
+          placeholder="Your last name"
         />
       </div>
 
       <div>
         <label htmlFor="branch" className="text-sm text-paper-dim">
-          Branch
+          Department
         </label>
         <select
           id="branch"
@@ -95,41 +94,32 @@ export default function RsvpForm() {
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none"
         >
           <option value="" disabled>
-            Select your branch
+            Select your department
           </option>
           <option value="EEE">EEE</option>
           <option value="ECE">ECE</option>
-          <option value="MECH">MECH</option>
+          <option value="MECH">Mech</option>
         </select>
       </div>
 
       <div>
-        <label htmlFor="guests" className="text-sm text-paper-dim">
-          Number attending (including you)
+        <label htmlFor="confirmed" className="text-sm text-paper-dim">
+          Are you confirmed to attend?
         </label>
-        <input
-          id="guests"
-          name="guests"
-          type="number"
-          min={1}
-          max={20}
-          defaultValue={1}
+        <select
+          id="confirmed"
+          name="confirmed"
           required
+          defaultValue=""
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="message" className="text-sm text-paper-dim">
-          Message (optional)
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          rows={3}
-          className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
-          placeholder="Dietary notes, arrival time, anything else"
-        />
+        >
+          <option value="" disabled>
+            Select an option
+          </option>
+          <option value="yes">Yes, I&rsquo;m confirmed</option>
+          <option value="maybe">Not sure yet</option>
+          <option value="no">No, I can&rsquo;t make it</option>
+        </select>
       </div>
 
       {status === "error" && (
@@ -141,7 +131,7 @@ export default function RsvpForm() {
         disabled={status === "submitting"}
         className="w-full rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90 disabled:opacity-60"
       >
-        {status === "submitting" ? "Submitting…" : "Confirm your RSVP"}
+        {status === "submitting" ? "Sending…" : "Send RSVP"}
       </button>
     </form>
   );
