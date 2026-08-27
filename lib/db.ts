@@ -5,16 +5,23 @@ declare global {
   var _pgPool: Pool | undefined;
 }
 
+function getConnectionString() {
+  // Vercel's Storage integration prefixes env vars (e.g. STORAGE_URL)
+  // instead of the plain DATABASE_URL name — support both.
+  return process.env.STORAGE_URL || process.env.DATABASE_URL;
+}
+
 function getPool() {
-  if (!process.env.DATABASE_URL) {
+  const connectionString = getConnectionString();
+  if (!connectionString) {
     throw new Error(
-      "DATABASE_URL is not set. Add a Postgres connection string in your Vercel project's environment variables (Vercel Postgres, Neon, and Supabase all work)."
+      "No database connection string found. Set STORAGE_URL (or DATABASE_URL) in your Vercel project's environment variables."
     );
   }
 
   if (!global._pgPool) {
     global._pgPool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString,
       ssl: { rejectUnauthorized: false },
     });
   }
