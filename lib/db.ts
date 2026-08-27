@@ -42,10 +42,14 @@ async function ensureSchema(pool: Pool) {
           id serial primary key,
           name text not null,
           email text not null,
+          branch text,
           guests integer not null default 1,
           message text,
           created_at timestamptz not null default now()
         )`
+      )
+      .then(() =>
+        pool.query(`alter table rsvps add column if not exists branch text`)
       )
       .then(() => undefined);
   }

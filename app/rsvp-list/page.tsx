@@ -2,13 +2,13 @@ import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-type Row = { name: string; guests: number; created_at: string };
+type Row = { name: string; branch: string | null; guests: number; created_at: string };
 
 async function loadRsvps(): Promise<{ rows: Row[]; error?: string }> {
   try {
     const db = await getDb();
     const { rows } = await db.query(
-      `select name, guests, created_at from rsvps order by created_at desc`
+      `select name, branch, guests, created_at from rsvps order by created_at desc`
     );
     return { rows };
   } catch {
@@ -47,7 +47,14 @@ export default async function RsvpListPage() {
               key={i}
               className="flex items-center justify-between px-5 py-4"
             >
-              <span className="text-paper">{r.name}</span>
+              <span className="text-paper">
+                {r.name}
+                {r.branch && (
+                  <span className="ml-2 text-xs uppercase tracking-wide text-brass">
+                    {r.branch}
+                  </span>
+                )}
+              </span>
               <span className="text-sm text-paper-dim">
                 {r.guests} {r.guests === 1 ? "guest" : "guests"}
               </span>

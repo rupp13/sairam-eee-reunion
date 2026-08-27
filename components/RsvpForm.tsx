@@ -17,6 +17,7 @@ export default function RsvpForm() {
     const data = {
       name: (form.elements.namedItem("name") as HTMLInputElement).value,
       email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      branch: (form.elements.namedItem("branch") as HTMLSelectElement).value,
       guests: Number(
         (form.elements.namedItem("guests") as HTMLInputElement).value || 1
       ),
@@ -80,6 +81,26 @@ export default function RsvpForm() {
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
           placeholder="you@example.com"
         />
+      </div>
+
+      <div>
+        <label htmlFor="branch" className="text-sm text-paper-dim">
+          Branch
+        </label>
+        <select
+          id="branch"
+          name="branch"
+          required
+          defaultValue=""
+          className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none"
+        >
+          <option value="" disabled>
+            Select your branch
+          </option>
+          <option value="EEE">EEE</option>
+          <option value="ECE">ECE</option>
+          <option value="MECH">MECH</option>
+        </select>
       </div>
 
       <div>
