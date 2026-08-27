@@ -1,0 +1,68 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+:root {
+  /* Homecoming Dusk palette — inspired by the Dallas skyline-at-dusk hero photo */
+  --ink: #12162a;         /* deep dusk navy, base background */
+  --ink-2: #1b2140;       /* raised panel navy */
+  --paper: #f6f1e6;       /* warm cream text/ivory */
+  --paper-dim: #cfc9bb;   /* muted ivory for secondary text */
+  --brass: #cf9a4c;       /* brass/gold accent — nameplate, dividers */
+  --ember: #b5583f;       /* muted terracotta-ember for warmth accents */
+  --line: rgba(207, 154, 76, 0.22);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-brass: var(--brass);
+  --color-ember: var(--ember);
+  --font-display: "Fraunces", serif;
+  --font-body: "Inter", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+.rule {
+  height: 1px;
+  background: var(--line);
+}
+
+.brass-text {
+  color: var(--brass);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
