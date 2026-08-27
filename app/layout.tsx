@@ -5,9 +5,9 @@ import SiteFooter from "@/components/SiteFooter";
 import MobileTabBar from "@/components/MobileTabBar";
 
 export const metadata: Metadata = {
-  title: "Sai Ram EEE 25 Year Reunion",
+  title: "Sai Ram 25 Year Reunion",
   description:
-    "A warm reunion website for Sai Ram Engineering College's EEE Department alumni, with event details and RSVP.",
+    "A warm reunion website for Sai Ram Engineering College alumni, with event details and RSVP.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
