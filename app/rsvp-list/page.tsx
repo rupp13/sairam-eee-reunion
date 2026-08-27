@@ -12,9 +12,23 @@ type Row = {
 
 const CONFIRMED_LABEL: Record<string, string> = {
   yes: "Confirmed",
-  maybe: "Not sure yet",
+  maybe: "Tentative",
   no: "Can't make it",
 };
+
+const CONFIRMED_COLOR: Record<string, string> = {
+  yes: "text-brass",
+  maybe: "text-paper-dim",
+  no: "text-ember",
+};
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
 async function loadRsvps(): Promise<{ rows: Row[]; error?: string }> {
   try {
@@ -55,19 +69,25 @@ export default async function RsvpListPage() {
       {rows.length > 0 && (
         <div className="mt-10 divide-y divide-[var(--line)] rounded-2xl border border-[var(--line)] bg-ink-2">
           {rows.map((r, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between px-5 py-4"
-            >
-              <span className="text-paper">
-                {r.first_name} {r.last_name}
-                {r.branch && (
-                  <span className="ml-2 text-xs uppercase tracking-wide text-brass">
-                    {r.branch}
-                  </span>
-                )}
-              </span>
-              <span className="text-sm text-paper-dim">
+            <div key={i} className="flex items-center justify-between px-5 py-4">
+              <div>
+                <span className="text-paper">
+                  {r.first_name} {r.last_name}
+                  {r.branch && (
+                    <span className="ml-2 text-xs uppercase tracking-wide text-brass">
+                      {r.branch}
+                    </span>
+                  )}
+                </span>
+                <p className="mt-1 text-xs text-paper-dim">
+                  RSVP&rsquo;d {formatDate(r.created_at)}
+                </p>
+              </div>
+              <span
+                className={`text-sm font-medium ${
+                  r.confirmed ? CONFIRMED_COLOR[r.confirmed] ?? "text-paper-dim" : "text-paper-dim"
+                }`}
+              >
                 {r.confirmed ? CONFIRMED_LABEL[r.confirmed] ?? r.confirmed : "—"}
               </span>
             </div>
