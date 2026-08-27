@@ -6,16 +6,20 @@ declare global {
 }
 
 function getConnectionString() {
-  // Vercel's Storage integration prefixes env vars (e.g. STORAGE_URL)
+  // Vercel's Storage integration prefixes env vars (e.g. STORAGE_POSTGRES_URL)
   // instead of the plain DATABASE_URL name — support both.
-  return process.env.STORAGE_URL || process.env.DATABASE_URL;
+  return (
+    process.env.STORAGE_POSTGRES_URL ||
+    process.env.STORAGE_URL ||
+    process.env.DATABASE_URL
+  );
 }
 
 function getPool() {
   const connectionString = getConnectionString();
   if (!connectionString) {
     throw new Error(
-      "No database connection string found. Set STORAGE_URL (or DATABASE_URL) in your Vercel project's environment variables."
+      "No database connection string found. Set STORAGE_POSTGRES_URL, STORAGE_URL, or DATABASE_URL in your Vercel project's environment variables."
     );
   }
 
