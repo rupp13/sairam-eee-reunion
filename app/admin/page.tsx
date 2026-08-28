@@ -241,16 +241,16 @@ export default function AdminPage() {
                     </p>
                   )}
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <button
                     onClick={() => startEdit(r)}
-                    className="text-sm text-brass hover:opacity-80"
+                    className="rounded-full border border-brass px-4 py-1.5 text-xs font-medium text-brass transition-colors hover:bg-brass hover:text-ink"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => deleteRsvp(r.id)}
-                    className="text-sm text-ember hover:opacity-80"
+                    className="rounded-full border border-ember px-4 py-1.5 text-xs font-medium text-ember transition-colors hover:bg-ember hover:text-paper"
                   >
                     Delete
                   </button>
