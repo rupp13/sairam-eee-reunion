@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-const ALBUM_URL = "https://photos.icloud.com/shared/album/090SDXlcrJz11ZZBh6VYIszLg";
-
 type Photo = {
   guid: string;
   width: number;
@@ -104,14 +102,14 @@ export default function PhotosPage() {
             Reunion photo album
           </h1>
         </div>
-        <a
-          href={ALBUM_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-1 whitespace-nowrap rounded-full bg-brass px-4 py-1.5 text-xs font-medium text-ink transition-opacity hover:opacity-90"
+        <button
+          type="button"
+          disabled
+          aria-disabled="true"
+          className="mt-1 cursor-not-allowed whitespace-nowrap rounded-full bg-brass px-4 py-1.5 text-xs font-medium text-ink opacity-50"
         >
           Open on iCloud
-        </a>
+        </button>
       </div>
 
       {!photos && !error && (
@@ -120,23 +118,20 @@ export default function PhotosPage() {
 
       {error && (
         <div className="mt-8 rounded-2xl border border-[var(--line)] bg-ink-2 p-6">
-          <p className="text-paper-dim">
-            Couldn&rsquo;t load photos right now. You can still view and
-            download them directly on iCloud.
-          </p>
+          <p className="text-paper-dim">Couldn&rsquo;t load photos right now.</p>
           {detail && (
             <p className="mt-3 break-words font-mono text-xs text-paper-dim/70">
               {detail}
             </p>
           )}
-          <a
-            href={ALBUM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-block rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
+          <button
+            type="button"
+            disabled
+            aria-disabled="true"
+            className="mt-4 inline-block cursor-not-allowed rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink opacity-50"
           >
             View &amp; download photos
-          </a>
+          </button>
         </div>
       )}
 
@@ -149,21 +144,18 @@ export default function PhotosPage() {
       {photos && photos.length > 0 && (
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {photos.map((photo) => (
-            <a
+            <div
               key={photo.guid}
-              href={photo.fullUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative aspect-square overflow-hidden rounded-xl border border-[var(--line)] bg-ink-2"
+              className="relative aspect-square overflow-hidden rounded-xl border border-[var(--line)] bg-ink-2"
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- external, unpredictable iCloud CDN host */}
               <img
                 src={photo.thumbUrl}
                 alt={photo.caption || "Reunion photo"}
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                className="h-full w-full object-cover"
               />
-            </a>
+            </div>
           ))}
         </div>
       )}
