@@ -34,12 +34,20 @@ async function describeFailure(res: Response, step: string) {
   return `${step} failed: HTTP ${res.status} ${res.statusText} — ${bodySnippet || "(empty body)"}`;
 }
 
+async function postJson(url: string, body: unknown, step: string): Promise<Response> {
+  try {
+    return await fetch(url, {
+      method: "POST",
+      headers: REQUEST_HEADERS,
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    throw new Error(`${step}: network request to ${url} failed`, { cause: err });
+  }
+}
+
 async function getRedirectedBaseUrl(baseUrl: string, token: string) {
-  const res = await fetch(`${baseUrl}webstream`, {
-    method: "POST",
-    headers: REQUEST_HEADERS,
-    body: JSON.stringify({ streamCtag: null }),
-  });
+  const res = await postJson(`${baseUrl}webstream`, { streamCtag: null }, "redirect step");
 
   // Apple issues a non-standard 330 status pointing at the correct
   // per-partition host; fetch() won't follow it automatically.
@@ -91,11 +99,7 @@ type WebstreamResponse = {
 };
 
 async function getWebstream(baseUrl: string): Promise<WebstreamResponse> {
-  const res = await fetch(`${baseUrl}webstream`, {
-    method: "POST",
-    headers: REQUEST_HEADERS,
-    body: JSON.stringify({ streamCtag: null }),
-  });
+  const res = await postJson(`${baseUrl}webstream`, { streamCtag: null }, "webstream step");
   if (!res.ok) {
     throw new Error(await describeFailure(res, "webstream step"));
   }
@@ -110,11 +114,7 @@ async function getWebstream(baseUrl: string): Promise<WebstreamResponse> {
 }
 
 async function getAssetUrls(baseUrl: string, photoGuids: string[]) {
-  const res = await fetch(`${baseUrl}webasseturls`, {
-    method: "POST",
-    headers: REQUEST_HEADERS,
-    body: JSON.stringify({ photoGuids }),
-  });
+  const res = await postJson(`${baseUrl}webasseturls`, { photoGuids }, "webasseturls step");
   if (!res.ok) {
     throw new Error(await describeFailure(res, "webasseturls step"));
   }
