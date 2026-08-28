@@ -64,6 +64,27 @@ const TABS = [
       </svg>
     ),
   },
+  {
+    href: "/photos",
+    label: "Photos",
+    icon: (active: boolean) => (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={active ? 2.5 : 2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <circle cx="8.5" cy="9.5" r="1.5" />
+        <path d="m4 17 4.5-4.5a2 2 0 0 1 2.83 0L15 16" />
+        <path d="m13 15 1.7-1.7a2 2 0 0 1 2.83 0L21 17" />
+      </svg>
+    ),
+  },
 ];
 
 export default function MobileTabBar() {

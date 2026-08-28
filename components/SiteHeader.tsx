@@ -28,6 +28,12 @@ export default function SiteHeader() {
           >
             RSVP List
           </Link>
+          <Link
+            href="/photos"
+            className="rounded-full border border-[var(--line)] px-4 py-1.5 text-paper-dim transition-colors hover:border-brass hover:text-paper"
+          >
+            Photos
+          </Link>
         </nav>
       </div>
     </header>
