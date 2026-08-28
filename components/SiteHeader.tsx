@@ -9,14 +9,23 @@ export default function SiteHeader() {
         </Link>
 
         {/* Desktop nav — hidden on mobile, replaced by the bottom tab bar */}
-        <nav className="hidden items-center gap-6 text-sm text-paper-dim sm:flex">
-          <Link href="/" className="transition-colors hover:text-paper">
+        <nav className="hidden items-center gap-2 text-sm sm:flex">
+          <Link
+            href="/"
+            className="rounded-full border border-[var(--line)] px-4 py-1.5 text-paper-dim transition-colors hover:border-brass hover:text-paper"
+          >
             Home
           </Link>
-          <Link href="/rsvp" className="transition-colors hover:text-paper">
+          <Link
+            href="/rsvp"
+            className="rounded-full border border-[var(--line)] px-4 py-1.5 text-paper-dim transition-colors hover:border-brass hover:text-paper"
+          >
             RSVP
           </Link>
-          <Link href="/rsvp-list" className="transition-colors hover:text-paper">
+          <Link
+            href="/rsvp-list"
+            className="rounded-full border border-[var(--line)] px-4 py-1.5 text-paper-dim transition-colors hover:border-brass hover:text-paper"
+          >
             RSVP List
           </Link>
         </nav>

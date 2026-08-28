@@ -111,14 +111,14 @@ export default function RsvpListPage() {
         {unlocked ? (
           <button
             onClick={hideContact}
-            className="mt-1 whitespace-nowrap text-xs text-paper-dim underline decoration-dotted hover:text-paper"
+            className="mt-1 whitespace-nowrap rounded-full border border-[var(--line)] px-4 py-1.5 text-xs text-paper-dim transition-colors hover:border-paper-dim hover:text-paper"
           >
             Hide contact info
           </button>
         ) : (
           <button
             onClick={() => setShowContact((v) => !v)}
-            className="mt-1 whitespace-nowrap text-xs text-brass hover:opacity-80"
+            className="mt-1 whitespace-nowrap rounded-full border border-brass px-4 py-1.5 text-xs font-medium text-brass transition-colors hover:bg-brass hover:text-ink"
           >
             Show contact info
           </button>
