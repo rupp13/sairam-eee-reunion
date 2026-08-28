@@ -12,9 +12,9 @@ export async function POST(req: NextRequest) {
     const branch = String(body.branch ?? "").trim().toUpperCase();
     const confirmed = String(body.confirmed ?? "").trim().toLowerCase();
 
-    if (!firstName || !lastName) {
+    if (!firstName) {
       return NextResponse.json(
-        { error: "First and last name are required." },
+        { error: "First name is required." },
         { status: 400 }
       );
     }

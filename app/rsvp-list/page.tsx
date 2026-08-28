@@ -72,7 +72,7 @@ export default async function RsvpListPage() {
             <div key={i} className="flex items-center justify-between px-5 py-4">
               <div>
                 <span className="text-paper">
-                  {r.first_name} {r.last_name}
+                  {[r.first_name, r.last_name].filter(Boolean).join(" ")}
                   {r.branch && (
                     <span className="ml-2 text-xs uppercase tracking-wide text-brass">
                       {r.branch}

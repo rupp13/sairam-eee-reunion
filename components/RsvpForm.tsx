@@ -70,13 +70,12 @@ export default function RsvpForm() {
 
       <div>
         <label htmlFor="lastName" className="text-sm text-paper-dim">
-          Last name
+          Last name <span className="text-paper-dim/60">(optional)</span>
         </label>
         <input
           id="lastName"
           name="lastName"
           type="text"
-          required
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
           placeholder="Your last name"
         />
