@@ -12,25 +12,25 @@ export default function SiteHeader() {
         <nav className="hidden items-center gap-2 text-sm sm:flex">
           <Link
             href="/"
-            className="rounded-full border border-[var(--line)] px-4 py-1.5 text-paper-dim transition-colors hover:border-brass hover:text-paper"
+            className="rounded-full bg-brass px-4 py-1.5 font-medium text-ink transition-opacity hover:opacity-90"
           >
             Home
           </Link>
           <Link
             href="/rsvp"
-            className="rounded-full border border-[var(--line)] px-4 py-1.5 text-paper-dim transition-colors hover:border-brass hover:text-paper"
+            className="rounded-full bg-brass px-4 py-1.5 font-medium text-ink transition-opacity hover:opacity-90"
           >
             RSVP
           </Link>
           <Link
             href="/rsvp-list"
-            className="rounded-full border border-[var(--line)] px-4 py-1.5 text-paper-dim transition-colors hover:border-brass hover:text-paper"
+            className="rounded-full bg-brass px-4 py-1.5 font-medium text-ink transition-opacity hover:opacity-90"
           >
             RSVP List
           </Link>
           <Link
             href="/photos"
-            className="rounded-full border border-[var(--line)] px-4 py-1.5 text-paper-dim transition-colors hover:border-brass hover:text-paper"
+            className="rounded-full bg-brass px-4 py-1.5 font-medium text-ink transition-opacity hover:opacity-90"
           >
             Photos
           </Link>

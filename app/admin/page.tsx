@@ -213,7 +213,7 @@ export default function AdminPage() {
                   </button>
                   <button
                     onClick={() => setEditingId(null)}
-                    className="rounded-full border border-[var(--line)] px-5 py-2 text-sm text-paper-dim hover:text-paper"
+                    className="rounded-full bg-brass px-5 py-2 text-sm font-medium text-ink transition-opacity hover:opacity-90"
                   >
                     Cancel
                   </button>
@@ -244,13 +244,13 @@ export default function AdminPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => startEdit(r)}
-                    className="rounded-full border border-brass px-4 py-1.5 text-xs font-medium text-brass transition-colors hover:bg-brass hover:text-ink"
+                    className="rounded-full bg-brass px-4 py-1.5 text-xs font-medium text-ink transition-opacity hover:opacity-90"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => deleteRsvp(r.id)}
-                    className="rounded-full border border-ember px-4 py-1.5 text-xs font-medium text-ember transition-colors hover:bg-ember hover:text-paper"
+                    className="rounded-full bg-ember px-4 py-1.5 text-xs font-medium text-paper transition-opacity hover:opacity-90"
                   >
                     Delete
                   </button>

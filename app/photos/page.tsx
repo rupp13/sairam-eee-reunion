@@ -59,7 +59,7 @@ export default function PhotosPage() {
           href={ALBUM_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-1 whitespace-nowrap rounded-full border border-[var(--line)] px-4 py-1.5 text-xs text-paper-dim transition-colors hover:border-brass hover:text-paper"
+          className="mt-1 whitespace-nowrap rounded-full bg-brass px-4 py-1.5 text-xs font-medium text-ink transition-opacity hover:opacity-90"
         >
           Open on iCloud
         </a>
