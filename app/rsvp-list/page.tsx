@@ -5,6 +5,8 @@ export const dynamic = "force-dynamic";
 type Row = {
   first_name: string;
   last_name: string;
+  email: string | null;
+  phone: string | null;
   branch: string | null;
   confirmed: string | null;
   created_at: string;
@@ -34,7 +36,7 @@ async function loadRsvps(): Promise<{ rows: Row[]; error?: string }> {
   try {
     const db = await getDb();
     const { rows } = await db.query(
-      `select first_name, last_name, branch, confirmed, created_at from rsvps where first_name is not null and first_name != '' order by created_at desc`
+      `select first_name, last_name, email, phone, branch, confirmed, created_at from rsvps where first_name is not null and first_name != '' order by created_at desc`
     );
     return { rows };
   } catch {
@@ -82,6 +84,11 @@ export default async function RsvpListPage() {
                 <p className="mt-1 text-xs text-paper-dim">
                   RSVP&rsquo;d {formatDate(r.created_at)}
                 </p>
+                {(r.email || r.phone) && (
+                  <p className="mt-1 text-xs text-paper-dim">
+                    {[r.email, r.phone].filter(Boolean).join(" · ")}
+                  </p>
+                )}
               </div>
               <span
                 className={`text-sm font-medium ${
