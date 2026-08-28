@@ -26,6 +26,12 @@ export default function RsvpForm() {
         .value,
     };
 
+    if (!data.email.trim() && !data.phone.trim()) {
+      setStatus("error");
+      setErrorMsg("Please provide at least an email or a phone number.");
+      return;
+    }
+
     try {
       const res = await fetch("/api/rsvp", {
         method: "POST",
@@ -84,6 +90,11 @@ export default function RsvpForm() {
         />
       </div>
 
+      <p className="text-xs text-paper-dim">
+        Please provide at least one of email or phone &mdash; both are
+        preferred so we can reach you.
+      </p>
+
       <div>
         <label htmlFor="email" className="text-sm text-paper-dim">
           Email
@@ -92,7 +103,6 @@ export default function RsvpForm() {
           id="email"
           name="email"
           type="email"
-          required
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
           placeholder="you@example.com"
         />
@@ -106,7 +116,6 @@ export default function RsvpForm() {
           id="phone"
           name="phone"
           type="tel"
-          required
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
           placeholder="Your phone number"
         />

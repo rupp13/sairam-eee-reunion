@@ -29,15 +29,15 @@ export async function PATCH(
       { status: 400 }
     );
   }
-  if (!EMAIL_RE.test(email)) {
+  if (!email && !phone) {
     return NextResponse.json(
-      { error: "Please enter a valid email address." },
+      { error: "Please provide at least an email or a phone number." },
       { status: 400 }
     );
   }
-  if (!phone) {
+  if (email && !EMAIL_RE.test(email)) {
     return NextResponse.json(
-      { error: "Please enter a phone number." },
+      { error: "Please enter a valid email address." },
       { status: 400 }
     );
   }
