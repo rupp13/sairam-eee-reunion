@@ -64,12 +64,20 @@ export default function Home() {
           <p className="mt-8 font-display text-lg text-paper">
             Dallas, Texas
           </p>
-          <Link
-            href="/rsvp"
-            className="mt-8 inline-block rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
-          >
-            Confirm your RSVP
-          </Link>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/rsvp"
+              className="inline-block rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
+            >
+              Confirm your RSVP
+            </Link>
+            <Link
+              href="/rsvp-list"
+              className="inline-block rounded-full border border-brass px-7 py-3 text-sm font-medium text-brass transition-colors hover:bg-brass hover:text-ink"
+            >
+              See who&rsquo;s coming
+            </Link>
+          </div>
         </div>
       </section>
 
