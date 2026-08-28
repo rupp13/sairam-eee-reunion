@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAlbumPhotos, type Album } from "@/lib/icloud-album";
+import { isRsvpListAuthorized } from "@/lib/admin-auth";
 
 const ALBUM_TOKEN = "090SDXlcrJz11ZZBh6VYIszLg";
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -23,7 +24,11 @@ function describeError(err: unknown): string {
 
 let cache: { data: Album; fetchedAt: number } | null = null;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (!isRsvpListAuthorized(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   if (cache && Date.now() - cache.fetchedAt < CACHE_TTL_MS) {
     return NextResponse.json(cache.data, {
       headers: { "Cache-Control": "s-maxage=300, stale-while-revalidate=600" },

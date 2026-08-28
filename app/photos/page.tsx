@@ -15,34 +15,83 @@ type Photo = {
 };
 
 export default function PhotosPage() {
+  const [secret, setSecret] = useState("");
+  const [authed, setAuthed] = useState(false);
+  const [authError, setAuthError] = useState("");
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [error, setError] = useState("");
   const [detail, setDetail] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
-
-    fetch("/api/photos")
-      .then(async (res) => {
-        const json = await res.json();
-        if (!res.ok) {
-          if (!cancelled) setDetail(json.detail || "");
-          throw new Error(json.error || "Could not load photos.");
-        }
-        if (!cancelled) setPhotos(json.photos);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Could not load photos."
-          );
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    const saved = sessionStorage.getItem("rsvp-list-secret");
+    if (saved) unlock(saved);
   }, []);
+
+  async function unlock(secretValue: string) {
+    setAuthError("");
+    let res: Response;
+    try {
+      res = await fetch("/api/photos", {
+        headers: { "x-rsvp-list-secret": secretValue },
+      });
+    } catch {
+      setAuthError("Could not reach the server. Check your connection and try again.");
+      return;
+    }
+
+    if (res.status === 401) {
+      sessionStorage.removeItem("rsvp-list-secret");
+      setAuthError("Incorrect password.");
+      return;
+    }
+
+    // Any other response means the password was accepted.
+    sessionStorage.setItem("rsvp-list-secret", secretValue);
+    setAuthed(true);
+
+    const json = await res.json().catch(() => null);
+    if (!res.ok) {
+      setDetail(json?.detail || "");
+      setError(json?.error || "Could not load photos.");
+      return;
+    }
+    setPhotos(json.photos);
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    unlock(secret);
+  }
+
+  if (!authed) {
+    return (
+      <section className="mx-auto max-w-sm px-6 py-24">
+        <p className="text-xs uppercase tracking-[0.25em] text-brass">
+          Photos
+        </p>
+        <h1 className="mt-3 font-display text-3xl text-paper">
+          Enter password
+        </h1>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          <input
+            type="password"
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+            placeholder="Password"
+            className="w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none"
+            autoFocus
+          />
+          {authError && <p className="text-sm text-ember">{authError}</p>}
+          <button
+            type="submit"
+            className="w-full rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
+          >
+            View photos
+          </button>
+        </form>
+      </section>
+    );
+  }
 
   return (
     <section className="mx-auto max-w-5xl px-6 py-20">
