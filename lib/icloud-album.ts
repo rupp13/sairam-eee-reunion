@@ -29,6 +29,11 @@ const REQUEST_HEADERS = {
   Referer: "https://www.icloud.com/sharedalbum/",
 };
 
+async function describeFailure(res: Response, step: string) {
+  const bodySnippet = (await res.text()).slice(0, 300);
+  return `${step} failed: HTTP ${res.status} ${res.statusText} — ${bodySnippet || "(empty body)"}`;
+}
+
 async function getRedirectedBaseUrl(baseUrl: string, token: string) {
   const res = await fetch(`${baseUrl}webstream`, {
     method: "POST",
@@ -39,12 +44,25 @@ async function getRedirectedBaseUrl(baseUrl: string, token: string) {
   // Apple issues a non-standard 330 status pointing at the correct
   // per-partition host; fetch() won't follow it automatically.
   if (res.status === 330) {
-    const body = (await res.json()) as { "X-Apple-MMe-Host": string };
+    const raw = await res.text();
+    let body: { "X-Apple-MMe-Host"?: string };
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      throw new Error(
+        `redirect step: 330 response body wasn't JSON — ${raw.slice(0, 300)}`
+      );
+    }
+    if (!body["X-Apple-MMe-Host"]) {
+      throw new Error(
+        `redirect step: 330 response missing X-Apple-MMe-Host — ${raw.slice(0, 300)}`
+      );
+    }
     return `https://${body["X-Apple-MMe-Host"]}/${token}/sharedstreams/`;
   }
 
   if (!res.ok) {
-    throw new Error(`iCloud webstream request failed: ${res.status}`);
+    throw new Error(await describeFailure(res, "redirect step"));
   }
 
   return baseUrl;
@@ -79,9 +97,16 @@ async function getWebstream(baseUrl: string): Promise<WebstreamResponse> {
     body: JSON.stringify({ streamCtag: null }),
   });
   if (!res.ok) {
-    throw new Error(`iCloud webstream request failed: ${res.status}`);
+    throw new Error(await describeFailure(res, "webstream step"));
   }
-  return res.json();
+  const raw = await res.text();
+  try {
+    return JSON.parse(raw);
+  } catch {
+    throw new Error(
+      `webstream step: response wasn't JSON — ${raw.slice(0, 300)}`
+    );
+  }
 }
 
 async function getAssetUrls(baseUrl: string, photoGuids: string[]) {
@@ -91,11 +116,17 @@ async function getAssetUrls(baseUrl: string, photoGuids: string[]) {
     body: JSON.stringify({ photoGuids }),
   });
   if (!res.ok) {
-    throw new Error(`iCloud webasseturls request failed: ${res.status}`);
+    throw new Error(await describeFailure(res, "webasseturls step"));
   }
-  const data = (await res.json()) as {
-    items: Record<string, { url_location: string; url_path: string }>;
-  };
+  const raw = await res.text();
+  let data: { items: Record<string, { url_location: string; url_path: string }> };
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw new Error(
+      `webasseturls step: response wasn't JSON — ${raw.slice(0, 300)}`
+    );
+  }
   const urls: Record<string, string> = {};
   for (const [checksum, item] of Object.entries(data.items)) {
     urls[checksum] = `https://${item.url_location}${item.url_path}`;

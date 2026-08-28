@@ -17,6 +17,7 @@ type Photo = {
 export default function PhotosPage() {
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [error, setError] = useState("");
+  const [detail, setDetail] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -24,7 +25,10 @@ export default function PhotosPage() {
     fetch("/api/photos")
       .then(async (res) => {
         const json = await res.json();
-        if (!res.ok) throw new Error(json.error || "Could not load photos.");
+        if (!res.ok) {
+          if (!cancelled) setDetail(json.detail || "");
+          throw new Error(json.error || "Could not load photos.");
+        }
         if (!cancelled) setPhotos(json.photos);
       })
       .catch((err) => {
@@ -71,6 +75,11 @@ export default function PhotosPage() {
             Couldn&rsquo;t load photos right now. You can still view and
             download them directly on iCloud.
           </p>
+          {detail && (
+            <p className="mt-3 break-words font-mono text-xs text-paper-dim/70">
+              {detail}
+            </p>
+          )}
           <a
             href={ALBUM_URL}
             target="_blank"

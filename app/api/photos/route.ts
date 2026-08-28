@@ -26,7 +26,10 @@ export async function GET() {
       return NextResponse.json(cache.data);
     }
     return NextResponse.json(
-      { error: "Could not load photos from the shared album." },
+      {
+        error: "Could not load photos from the shared album.",
+        detail: err instanceof Error ? err.message : String(err),
+      },
       { status: 502 }
     );
   }
