@@ -1,32 +1,24 @@
-const BASE_62_CHAR_SET =
-  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+// iOS 27 shared-album links (photos.icloud.com/shared/album/<token>) are backed
+// by CloudKit's public database web service, not the legacy sharedstreams API
+// used by the old icloud.com/sharedalbum/#<token> links. Protocol reverse
+// engineered from a HAR capture of the public web viewer:
+//   1. POST .../public/records/resolve  -- turns the share token into a zoneID
+//      plus a short-lived anonymousPublicAccess token and the per-share
+//      database partition host to use for everything else.
+//   2. POST {partition}/.../shared/records/query -- fetches CPLMaster +
+//      CPLAsset records for the zone (paginated via continuationMarker).
+//   3. Each CPLMaster record's derivative fields (resJPEGThumbRes, etc.)
+//      carry a pre-signed, unauthenticated download URL good for ~15-20 min.
 
-function base62ToInt(chars: string) {
-  let value = 0;
-  for (const char of chars) {
-    value = value * 62 + BASE_62_CHAR_SET.indexOf(char);
-  }
-  return value;
-}
-
-// Ported from the icloud-shared-album npm package's token decoding: the
-// token encodes a guessed server partition. Apple corrects it with a 330
-// redirect if the guess is wrong, so this only needs to be a starting point.
-function getBaseUrl(token: string) {
-  const partition =
-    token[0] === "A" ? base62ToInt(token[1]) : base62ToInt(token.slice(1, 3));
-  const partitionStr = partition < 10 ? `0${partition}` : String(partition);
-  return `https://p${partitionStr}-sharedstreams.icloud.com/${token}/sharedstreams/`;
-}
+const CLIENT_BUILD_NUMBER = "2630BuildBeta18";
 
 const REQUEST_HEADERS = {
-  Origin: "https://www.icloud.com",
-  "Accept-Language": "en-US,en;q=0.8",
-  "User-Agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
   "Content-Type": "text/plain",
   Accept: "*/*",
-  Referer: "https://www.icloud.com/sharedalbum/",
+  Origin: "https://photos.icloud.com",
+  Referer: "https://photos.icloud.com/",
+  "User-Agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
 };
 
 async function describeFailure(res: Response, step: string) {
@@ -46,100 +38,151 @@ async function postJson(url: string, body: unknown, step: string): Promise<Respo
   }
 }
 
-async function getRedirectedBaseUrl(baseUrl: string, token: string) {
-  const res = await postJson(`${baseUrl}webstream`, { streamCtag: null }, "redirect step");
-
-  // Apple issues a non-standard 330 status pointing at the correct
-  // per-partition host; fetch() won't follow it automatically.
-  if (res.status === 330) {
-    const raw = await res.text();
-    let body: { "X-Apple-MMe-Host"?: string };
-    try {
-      body = JSON.parse(raw);
-    } catch {
-      throw new Error(
-        `redirect step: 330 response body wasn't JSON — ${raw.slice(0, 300)}`
-      );
-    }
-    if (!body["X-Apple-MMe-Host"]) {
-      throw new Error(
-        `redirect step: 330 response missing X-Apple-MMe-Host — ${raw.slice(0, 300)}`
-      );
-    }
-    return `https://${body["X-Apple-MMe-Host"]}/${token}/sharedstreams/`;
-  }
-
+async function postJsonAndParse<T>(url: string, body: unknown, step: string): Promise<T> {
+  const res = await postJson(url, body, step);
   if (!res.ok) {
-    throw new Error(await describeFailure(res, "redirect step"));
-  }
-
-  return baseUrl;
-}
-
-type RawDerivative = {
-  checksum: string;
-  fileSize: string;
-  width: string;
-  height: string;
-};
-
-type RawPhoto = {
-  photoGuid: string;
-  dateCreated: string;
-  batchDateCreated: string;
-  width: string;
-  height: string;
-  caption?: string;
-  derivatives: Record<string, RawDerivative>;
-};
-
-type WebstreamResponse = {
-  photos: RawPhoto[];
-  streamName: string;
-};
-
-async function getWebstream(baseUrl: string): Promise<WebstreamResponse> {
-  const res = await postJson(`${baseUrl}webstream`, { streamCtag: null }, "webstream step");
-  if (!res.ok) {
-    throw new Error(await describeFailure(res, "webstream step"));
+    throw new Error(await describeFailure(res, step));
   }
   const raw = await res.text();
   try {
     return JSON.parse(raw);
   } catch {
-    throw new Error(
-      `webstream step: response wasn't JSON — ${raw.slice(0, 300)}`
-    );
+    throw new Error(`${step}: response wasn't JSON — ${raw.slice(0, 300)}`);
   }
 }
 
-async function getAssetUrls(baseUrl: string, photoGuids: string[]) {
-  const res = await postJson(`${baseUrl}webasseturls`, { photoGuids }, "webasseturls step");
-  if (!res.ok) {
-    throw new Error(await describeFailure(res, "webasseturls step"));
-  }
-  const raw = await res.text();
-  let data: { items: Record<string, { url_location: string; url_path: string }> };
-  try {
-    data = JSON.parse(raw);
-  } catch {
+type ZoneID = {
+  zoneName: string;
+  ownerRecordName: string;
+  zoneType: string;
+};
+
+type ResolveResponse = {
+  results?: Array<{
+    zoneID?: ZoneID;
+    anonymousPublicAccess?: {
+      token: string;
+      databasePartition: string;
+    };
+    share?: {
+      fields?: {
+        "cloudkit.title"?: { value?: string };
+      };
+    };
+  }>;
+};
+
+async function resolveShare(token: string) {
+  const url =
+    `https://ckdatabasews.icloud.com/database/1/com.apple.photos.cloud/production/public/records/resolve` +
+    `?remapEnums=true&getCurrentSyncToken=true&clientBuildNumber=${CLIENT_BUILD_NUMBER}` +
+    `&clientMasteringNumber=${CLIENT_BUILD_NUMBER}&sharing_url_key=${token}`;
+
+  const data = await postJsonAndParse<ResolveResponse>(
+    url,
+    { shortGUIDs: [{ value: token }] },
+    "resolve step"
+  );
+
+  const result = data.results?.[0];
+  const access = result?.anonymousPublicAccess;
+  if (!result?.zoneID || !access?.token || !access?.databasePartition) {
     throw new Error(
-      `webasseturls step: response wasn't JSON — ${raw.slice(0, 300)}`
+      `resolve step: response missing zoneID/anonymousPublicAccess — ${JSON.stringify(data).slice(0, 300)}`
     );
   }
-  const urls: Record<string, string> = {};
-  for (const [checksum, item] of Object.entries(data.items)) {
-    urls[checksum] = `https://${item.url_location}${item.url_path}`;
-  }
-  return urls;
+
+  return {
+    zoneID: result.zoneID,
+    authToken: access.token,
+    partitionUrl: access.databasePartition,
+    title: result.share?.fields?.["cloudkit.title"]?.value ?? "",
+  };
 }
 
-function chunk<T>(items: T[], size: number): T[][] {
-  const chunks: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
+type RawFieldValue = { value?: unknown; type?: string };
+
+type RawAssetRef = {
+  downloadURL: string;
+};
+
+type RawRecord = {
+  recordName: string;
+  recordType: string;
+  fields: Record<string, RawFieldValue>;
+};
+
+type QueryResponse = {
+  records?: RawRecord[];
+  continuationMarker?: string;
+};
+
+async function queryAllAssetRecords(
+  partitionUrl: string,
+  authToken: string,
+  zoneID: ZoneID,
+  token: string
+) {
+  const clientId =
+    globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+  const params = new URLSearchParams({
+    remapEnums: "true",
+    getCurrentSyncToken: "true",
+    sharing_url_key: token,
+    publicAccessAuthToken: authToken,
+    clientBuildNumber: CLIENT_BUILD_NUMBER,
+    clientMasteringNumber: CLIENT_BUILD_NUMBER,
+    clientId,
+  });
+  const url = `${partitionUrl}/database/1/com.apple.photos.cloud/production/shared/records/query?${params}`;
+
+  const records: RawRecord[] = [];
+  let body: Record<string, unknown> = {
+    query: {
+      recordType: "CPLAssetAndMasterByAddedDate",
+      filterBy: [
+        {
+          fieldName: "direction",
+          comparator: "EQUALS",
+          fieldValue: { value: "ASCENDING", type: "STRING" },
+        },
+        {
+          fieldName: "startRank",
+          comparator: "EQUALS",
+          fieldValue: { value: 0, type: "INT64" },
+        },
+      ],
+    },
+    zoneID,
+    resultsLimit: 200,
+  };
+
+  // Defensive cap: a reunion album shouldn't need more than a handful of
+  // pages, and this guards against ever looping forever on a protocol quirk.
+  for (let page = 0; page < 20; page++) {
+    const data = await postJsonAndParse<QueryResponse>(url, body, "query step");
+    records.push(...(data.records ?? []));
+    if (!data.continuationMarker) break;
+    body = { continuationMarker: data.continuationMarker, zoneID, resultsLimit: 200 };
   }
-  return chunks;
+
+  return records;
+}
+
+function fieldValue(fields: Record<string, RawFieldValue>, key: string): unknown {
+  return fields[key]?.value;
+}
+
+function buildAssetUrl(res: unknown, fileType: unknown): string | null {
+  if (
+    !res ||
+    typeof res !== "object" ||
+    typeof (res as RawAssetRef).downloadURL !== "string" ||
+    typeof fileType !== "string"
+  ) {
+    return null;
+  }
+  return (res as RawAssetRef).downloadURL.replace("${f}", encodeURIComponent(fileType));
 }
 
 export type AlbumPhoto = {
@@ -158,37 +201,66 @@ export type Album = {
 };
 
 export async function getAlbumPhotos(token: string): Promise<Album> {
-  const guessedBaseUrl = getBaseUrl(token);
-  const baseUrl = await getRedirectedBaseUrl(guessedBaseUrl, token);
-  const stream = await getWebstream(baseUrl);
+  const { zoneID, authToken, partitionUrl, title } = await resolveShare(token);
+  const records = await queryAllAssetRecords(partitionUrl, authToken, zoneID, token);
 
-  const photoGuids = stream.photos.map((p) => p.photoGuid);
-  const checksumToUrl: Record<string, string> = {};
-  for (const guidChunk of chunk(photoGuids, 25)) {
-    Object.assign(checksumToUrl, await getAssetUrls(baseUrl, guidChunk));
+  const masters = new Map<string, RawRecord>();
+  const assets: RawRecord[] = [];
+  for (const record of records) {
+    if (record.recordType === "CPLMaster") masters.set(record.recordName, record);
+    else if (record.recordType === "CPLAsset") assets.push(record);
   }
 
   const photos: AlbumPhoto[] = [];
-  for (const photo of stream.photos) {
-    const derivatives = Object.values(photo.derivatives)
-      .filter((d) => checksumToUrl[d.checksum])
-      .map((d) => ({
-        url: checksumToUrl[d.checksum],
-        width: Number(d.width),
-        height: Number(d.height),
-      }))
-      .sort((a, b) => a.height - b.height);
+  for (const asset of assets) {
+    const masterRefValue = fieldValue(asset.fields, "masterRef") as
+      | { recordName?: string }
+      | undefined;
+    const master = masterRefValue?.recordName
+      ? masters.get(masterRefValue.recordName)
+      : undefined;
+    if (!master) continue;
 
-    if (derivatives.length === 0) continue;
+    const thumbUrl = buildAssetUrl(
+      fieldValue(master.fields, "resJPEGThumbRes"),
+      fieldValue(master.fields, "resJPEGThumbFileType")
+    );
+    const fullUrl =
+      buildAssetUrl(
+        fieldValue(master.fields, "resJPEGLargeRes"),
+        fieldValue(master.fields, "resJPEGLargeFileType")
+      ) ??
+      buildAssetUrl(
+        fieldValue(master.fields, "resJPEGMedRes"),
+        fieldValue(master.fields, "resJPEGMedFileType")
+      );
+
+    // Skip non-photo masters (e.g. video-only records) for now — view/download
+    // of photos is the current scope.
+    if (!thumbUrl || !fullUrl) continue;
+
+    const dateMs = Number(
+      fieldValue(asset.fields, "assetDate") ??
+        fieldValue(asset.fields, "addedDate") ??
+        Date.now()
+    );
 
     photos.push({
-      guid: photo.photoGuid,
-      width: Number(photo.width),
-      height: Number(photo.height),
-      dateCreated: photo.dateCreated,
-      caption: photo.caption ?? "",
-      thumbUrl: derivatives[0].url,
-      fullUrl: derivatives[derivatives.length - 1].url,
+      guid: asset.recordName,
+      width: Number(
+        fieldValue(master.fields, "resJPEGLargeWidth") ??
+          fieldValue(master.fields, "resJPEGMedWidth") ??
+          0
+      ),
+      height: Number(
+        fieldValue(master.fields, "resJPEGLargeHeight") ??
+          fieldValue(master.fields, "resJPEGMedHeight") ??
+          0
+      ),
+      dateCreated: new Date(dateMs).toISOString(),
+      caption: "",
+      thumbUrl,
+      fullUrl,
     });
   }
 
@@ -196,5 +268,5 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
     (a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
   );
 
-  return { streamName: stream.streamName, photos };
+  return { streamName: title || "Shared Album", photos };
 }
