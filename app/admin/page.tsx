@@ -6,8 +6,6 @@ type Rsvp = {
   id: number;
   first_name: string;
   last_name: string;
-  email: string;
-  phone: string;
   branch: string;
   confirmed: string;
   created_at: string;
@@ -77,8 +75,6 @@ export default function AdminPage() {
       body: JSON.stringify({
         firstName: draft.first_name,
         lastName: draft.last_name,
-        email: draft.email,
-        phone: draft.phone,
         branch: draft.branch,
         confirmed: draft.confirmed,
       }),
@@ -164,20 +160,6 @@ export default function AdminPage() {
                   placeholder="Last name"
                   className="rounded-lg border border-[var(--line)] bg-ink px-3 py-2 text-paper outline-none"
                 />
-                <input
-                  value={draft.email ?? ""}
-                  onChange={(e) => setDraft({ ...draft, email: e.target.value })}
-                  placeholder="Email"
-                  type="email"
-                  className="rounded-lg border border-[var(--line)] bg-ink px-3 py-2 text-paper outline-none"
-                />
-                <input
-                  value={draft.phone ?? ""}
-                  onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
-                  placeholder="Phone number"
-                  type="tel"
-                  className="rounded-lg border border-[var(--line)] bg-ink px-3 py-2 text-paper outline-none"
-                />
                 <select
                   value={draft.branch ?? ""}
                   onChange={(e) =>
@@ -235,11 +217,6 @@ export default function AdminPage() {
                     {CONFIRMED_OPTIONS.find((c) => c.value === r.confirmed)
                       ?.label ?? r.confirmed}
                   </p>
-                  {(r.email || r.phone) && (
-                    <p className="mt-1 text-xs text-paper-dim">
-                      {[r.email, r.phone].filter(Boolean).join(" · ")}
-                    </p>
-                  )}
                 </div>
                 <div className="flex gap-2">
                   <button

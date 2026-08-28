@@ -4,7 +4,6 @@ import { isAuthorized } from "@/lib/admin-auth";
 
 const VALID_BRANCHES = ["EEE", "ECE", "MECH"];
 const VALID_CONFIRMED = ["yes", "maybe", "no"];
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function PATCH(
   req: NextRequest,
@@ -18,26 +17,12 @@ export async function PATCH(
   const body = await req.json();
   const firstName = String(body.firstName ?? "").trim();
   const lastName = String(body.lastName ?? "").trim();
-  const email = String(body.email ?? "").trim();
-  const phone = String(body.phone ?? "").trim();
   const branch = String(body.branch ?? "").trim().toUpperCase();
   const confirmed = String(body.confirmed ?? "").trim().toLowerCase();
 
   if (!firstName || !lastName) {
     return NextResponse.json(
       { error: "First and last name are required." },
-      { status: 400 }
-    );
-  }
-  if (!email && !phone) {
-    return NextResponse.json(
-      { error: "Please provide at least an email or a phone number." },
-      { status: 400 }
-    );
-  }
-  if (email && !EMAIL_RE.test(email)) {
-    return NextResponse.json(
-      { error: "Please enter a valid email address." },
       { status: 400 }
     );
   }
@@ -57,8 +42,8 @@ export async function PATCH(
   try {
     const db = await getDb();
     await db.query(
-      `update rsvps set first_name = $1, last_name = $2, email = $3, phone = $4, branch = $5, confirmed = $6 where id = $7`,
-      [firstName, lastName, email, phone, branch, confirmed, id]
+      `update rsvps set first_name = $1, last_name = $2, branch = $3, confirmed = $4 where id = $5`,
+      [firstName, lastName, branch, confirmed, id]
     );
     return NextResponse.json({ ok: true });
   } catch (err) {

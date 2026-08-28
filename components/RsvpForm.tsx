@@ -19,18 +19,10 @@ export default function RsvpForm() {
         .value,
       lastName: (form.elements.namedItem("lastName") as HTMLInputElement)
         .value,
-      email: (form.elements.namedItem("email") as HTMLInputElement).value,
-      phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       branch: (form.elements.namedItem("branch") as HTMLSelectElement).value,
       confirmed: (form.elements.namedItem("confirmed") as HTMLSelectElement)
         .value,
     };
-
-    if (!data.email.trim() && !data.phone.trim()) {
-      setStatus("error");
-      setErrorMsg("Please provide at least an email or a phone number.");
-      return;
-    }
 
     try {
       const res = await fetch("/api/rsvp", {
@@ -87,37 +79,6 @@ export default function RsvpForm() {
           required
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
           placeholder="Your last name"
-        />
-      </div>
-
-      <p className="text-xs text-paper-dim">
-        Please provide at least one of email or phone &mdash; both are
-        preferred so we can reach you.
-      </p>
-
-      <div>
-        <label htmlFor="email" className="text-sm text-paper-dim">
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
-          placeholder="you@example.com"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="phone" className="text-sm text-paper-dim">
-          Phone number
-        </label>
-        <input
-          id="phone"
-          name="phone"
-          type="tel"
-          className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
-          placeholder="Your phone number"
         />
       </div>
 

@@ -3,33 +3,18 @@ import { getDb } from "@/lib/db";
 
 const VALID_BRANCHES = ["EEE", "ECE", "MECH"];
 const VALID_CONFIRMED = ["yes", "maybe", "no"];
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const firstName = String(body.firstName ?? "").trim();
     const lastName = String(body.lastName ?? "").trim();
-    const email = String(body.email ?? "").trim();
-    const phone = String(body.phone ?? "").trim();
     const branch = String(body.branch ?? "").trim().toUpperCase();
     const confirmed = String(body.confirmed ?? "").trim().toLowerCase();
 
     if (!firstName || !lastName) {
       return NextResponse.json(
         { error: "First and last name are required." },
-        { status: 400 }
-      );
-    }
-    if (!email && !phone) {
-      return NextResponse.json(
-        { error: "Please provide at least an email or a phone number." },
-        { status: 400 }
-      );
-    }
-    if (email && !EMAIL_RE.test(email)) {
-      return NextResponse.json(
-        { error: "Please enter a valid email address." },
         { status: 400 }
       );
     }
@@ -48,8 +33,8 @@ export async function POST(req: NextRequest) {
 
     const db = await getDb();
     await db.query(
-      `insert into rsvps (first_name, last_name, email, phone, branch, confirmed) values ($1, $2, $3, $4, $5, $6)`,
-      [firstName, lastName, email, phone, branch, confirmed]
+      `insert into rsvps (first_name, last_name, branch, confirmed) values ($1, $2, $3, $4)`,
+      [firstName, lastName, branch, confirmed]
     );
 
     return NextResponse.json({ ok: true });
