@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const db = await getDb();
     const { rows } = await db.query(
-      `select id, first_name, last_name, branch, confirmed, created_at from rsvps order by created_at desc`
+      `select id, first_name, last_name, email, phone, branch, confirmed, created_at from rsvps order by created_at desc`
     );
     return NextResponse.json({ rsvps: rows });
   } catch (err) {

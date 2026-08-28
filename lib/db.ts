@@ -60,6 +60,9 @@ async function ensureSchema(pool: Pool) {
       .then(() =>
         pool.query(`alter table rsvps add column if not exists confirmed text`)
       )
+      .then(() =>
+        pool.query(`alter table rsvps add column if not exists phone text`)
+      )
       .then(() => pool.query(`alter table rsvps alter column name drop not null`))
       .then(() => pool.query(`alter table rsvps alter column email drop not null`))
       .then(() => undefined);
@@ -77,6 +80,8 @@ export type Rsvp = {
   id: number;
   first_name: string;
   last_name: string;
+  email: string;
+  phone: string;
   branch: string;
   confirmed: string;
   created_at: string;

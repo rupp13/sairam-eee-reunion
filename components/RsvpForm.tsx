@@ -19,6 +19,8 @@ export default function RsvpForm() {
         .value,
       lastName: (form.elements.namedItem("lastName") as HTMLInputElement)
         .value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       branch: (form.elements.namedItem("branch") as HTMLSelectElement).value,
       confirmed: (form.elements.namedItem("confirmed") as HTMLSelectElement)
         .value,
@@ -79,6 +81,34 @@ export default function RsvpForm() {
           required
           className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
           placeholder="Your last name"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="email" className="text-sm text-paper-dim">
+          Email
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
+          placeholder="you@example.com"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="phone" className="text-sm text-paper-dim">
+          Phone number
+        </label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          required
+          className="mt-2 w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none placeholder:text-paper-dim/60"
+          placeholder="Your phone number"
         />
       </div>
 
