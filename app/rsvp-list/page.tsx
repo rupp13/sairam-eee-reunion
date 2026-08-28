@@ -41,10 +41,13 @@ export default function RsvpListPage() {
   const [unlockError, setUnlockError] = useState("");
 
   useEffect(() => {
-    loadPublic();
-
     const saved = sessionStorage.getItem("rsvp-list-secret");
-    if (saved) unlock(saved);
+    if (saved) {
+      unlock(saved);
+    } else {
+      loadPublic();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadPublic() {
@@ -63,19 +66,31 @@ export default function RsvpListPage() {
 
   async function unlock(secretValue: string) {
     setUnlockError("");
-    const res = await fetch("/api/rsvp-list", {
-      headers: { "x-rsvp-list-secret": secretValue },
-    });
+    let res: Response;
+    try {
+      res = await fetch("/api/rsvp-list", {
+        headers: { "x-rsvp-list-secret": secretValue },
+      });
+    } catch {
+      setUnlockError("Could not reach the server. Check your connection and try again.");
+      loadPublic();
+      return;
+    }
+
     if (res.status === 401) {
       sessionStorage.removeItem("rsvp-list-secret");
       setUnlockError("Incorrect password.");
+      loadPublic();
       return;
     }
-    const json = await res.json();
+
+    const json = await res.json().catch(() => null);
     if (!res.ok) {
-      setUnlockError(json.error || "Could not load contact info.");
+      setUnlockError(json?.error || "Could not load contact info.");
+      loadPublic();
       return;
     }
+
     sessionStorage.setItem("rsvp-list-secret", secretValue);
     setRows(json.rsvps);
     setUnlocked(true);
