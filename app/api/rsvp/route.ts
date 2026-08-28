@@ -61,19 +61,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-export async function GET() {
-  try {
-    const db = await getDb();
-    const { rows } = await db.query(
-      `select first_name, last_name, email, phone, branch, confirmed, created_at from rsvps order by created_at desc`
-    );
-    return NextResponse.json({ rsvps: rows });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { error: "Could not load RSVPs." },
-      { status: 500 }
-    );
-  }
-}
