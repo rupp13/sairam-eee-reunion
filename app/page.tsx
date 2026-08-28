@@ -73,7 +73,7 @@ export default function Home() {
             </Link>
             <Link
               href="/rsvp-list"
-              className="inline-block rounded-full border border-brass px-7 py-3 text-sm font-medium text-brass transition-colors hover:bg-brass hover:text-ink"
+              className="inline-block rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
             >
               See who&rsquo;s coming
             </Link>
