@@ -16,6 +16,7 @@ export default function PhotosPage() {
   const [secret, setSecret] = useState("");
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState("");
+  const [checking, setChecking] = useState(false);
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [error, setError] = useState("");
   const [detail, setDetail] = useState("");
@@ -27,18 +28,21 @@ export default function PhotosPage() {
 
   async function unlock(secretValue: string) {
     setAuthError("");
+    setChecking(true);
     let res: Response;
     try {
       res = await fetch("/api/photos", {
         headers: { "x-rsvp-list-secret": secretValue },
       });
     } catch {
+      setChecking(false);
       setAuthError("Could not reach the server. Check your connection and try again.");
       return;
     }
 
     if (res.status === 401) {
       sessionStorage.removeItem("rsvp-list-secret");
+      setChecking(false);
       setAuthError("Incorrect password.");
       return;
     }
@@ -70,23 +74,30 @@ export default function PhotosPage() {
         <h1 className="mt-3 font-display text-3xl text-paper">
           Enter password
         </h1>
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-          <input
-            type="password"
-            value={secret}
-            onChange={(e) => setSecret(e.target.value)}
-            placeholder="Password"
-            className="w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none"
-            autoFocus
-          />
-          {authError && <p className="text-sm text-ember">{authError}</p>}
-          <button
-            type="submit"
-            className="w-full rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
-          >
-            View photos
-          </button>
-        </form>
+        {checking ? (
+          <p className="mt-8 text-paper-dim">
+            Checking password&hellip; loading photos can take a few seconds
+            for a large album.
+          </p>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+            <input
+              type="password"
+              value={secret}
+              onChange={(e) => setSecret(e.target.value)}
+              placeholder="Password"
+              className="w-full rounded-lg border border-[var(--line)] bg-ink-2 px-4 py-3 text-paper outline-none"
+              autoFocus
+            />
+            {authError && <p className="text-sm text-ember">{authError}</p>}
+            <button
+              type="submit"
+              className="w-full rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
+            >
+              View photos
+            </button>
+          </form>
+        )}
       </section>
     );
   }
