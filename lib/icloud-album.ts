@@ -137,25 +137,22 @@ async function queryAllAssetRecords(
   const url = `${partitionUrl}/database/1/com.apple.photos.cloud/production/shared/records/query?${params}`;
 
   const records: RawRecord[] = [];
-  let body: Record<string, unknown> = {
-    query: {
-      recordType: "CPLAssetAndMasterByAddedDate",
-      filterBy: [
-        {
-          fieldName: "direction",
-          comparator: "EQUALS",
-          fieldValue: { value: "ASCENDING", type: "STRING" },
-        },
-        {
-          fieldName: "startRank",
-          comparator: "EQUALS",
-          fieldValue: { value: 0, type: "INT64" },
-        },
-      ],
-    },
-    zoneID,
-    resultsLimit: 200,
+  const initialQuery = {
+    recordType: "CPLAssetAndMasterByAddedDate",
+    filterBy: [
+      {
+        fieldName: "direction",
+        comparator: "EQUALS",
+        fieldValue: { value: "ASCENDING", type: "STRING" },
+      },
+      {
+        fieldName: "startRank",
+        comparator: "EQUALS",
+        fieldValue: { value: 0, type: "INT64" },
+      },
+    ],
   };
+  let body: Record<string, unknown> = { query: initialQuery, zoneID, resultsLimit: 200 };
 
   // Defensive cap: a reunion album shouldn't need more than a handful of
   // pages, and this guards against ever looping forever on a protocol quirk.
@@ -163,7 +160,14 @@ async function queryAllAssetRecords(
     const data = await postJsonAndParse<QueryResponse>(url, body, "query step");
     records.push(...(data.records ?? []));
     if (!data.continuationMarker) break;
-    body = { continuationMarker: data.continuationMarker, zoneID, resultsLimit: 200 };
+    // The API requires "query" on every request, even when paginating via
+    // continuationMarker — omitting it fails with "missing required query field".
+    body = {
+      query: initialQuery,
+      continuationMarker: data.continuationMarker,
+      zoneID,
+      resultsLimit: 200,
+    };
   }
 
   return records;
