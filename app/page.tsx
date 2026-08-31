@@ -1,7 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import ScheduleTable, { type ScheduleItem } from "@/components/ScheduleTable";
 
-const schedule = [
+// Add `description`, `photos` (array of image URLs), and/or `links` (array of
+// { label, url }) to any row below to give it an expand arrow with more info.
+// Rows without any of those render as a plain row, same as before.
+const schedule: ScheduleItem[] = [
   {
     time: "9 AM – 12 Noon",
     activity: "Meet and Greet",
@@ -163,47 +167,7 @@ export default function Home() {
           <span className="text-paper-dim">(Suggested)</span>
         </h2>
 
-        <div className="mt-10 overflow-hidden rounded-2xl border border-[var(--line)]">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--line)] bg-ink-2 text-xs uppercase tracking-wide text-brass">
-                <th className="px-5 py-3 font-medium">Time</th>
-                <th className="px-5 py-3 font-medium">Activity</th>
-                <th className="px-5 py-3 font-medium">Location</th>
-              </tr>
-            </thead>
-            <tbody>
-              {schedule.map((row, i) => (
-                <tr
-                  key={row.time}
-                  className={
-                    i !== schedule.length - 1
-                      ? "border-b border-[var(--line)]"
-                      : ""
-                  }
-                >
-                  <td className="px-5 py-4 align-top text-paper-dim">
-                    {row.time}
-                  </td>
-                  <td className="px-5 py-4 align-top text-paper">
-                    {row.activity}
-                  </td>
-                  <td className="px-5 py-4 align-top text-paper-dim">
-                    {row.location !== "—" ? (
-                      <>
-                        <span className="text-paper">{row.location}</span>
-                        <br />
-                        {row.address}
-                      </>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ScheduleTable schedule={schedule} />
       </section>
 
       <div className="mx-auto max-w-5xl px-6">
