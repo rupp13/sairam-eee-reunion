@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAlbumPhotos, type Album } from "@/lib/icloud-album";
 import { isRsvpListAuthorized } from "@/lib/admin-auth";
 
-const ALBUM_TOKEN = "090SDXlcrJz11ZZBh6VYIszLg";
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 function describeError(err: unknown): string {
@@ -29,6 +28,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const albumToken = process.env.ALBUM_TOKEN;
+  if (!albumToken) {
+    return NextResponse.json(
+      { error: "Photo album isn't configured. Set ALBUM_TOKEN in your Vercel project's environment variables." },
+      { status: 500 }
+    );
+  }
+
   if (cache && Date.now() - cache.fetchedAt < CACHE_TTL_MS) {
     return NextResponse.json(cache.data, {
       headers: { "Cache-Control": "s-maxage=300, stale-while-revalidate=600" },
@@ -36,7 +43,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const data = await getAlbumPhotos(ALBUM_TOKEN);
+    const data = await getAlbumPhotos(albumToken);
     cache = { data, fetchedAt: Date.now() };
     return NextResponse.json(data, {
       headers: { "Cache-Control": "s-maxage=300, stale-while-revalidate=600" },
