@@ -211,16 +211,11 @@ async function queryAllAssetRecords(
         resultsLimit: PAGE_SIZE_ITEMS * 2,
       };
       const data = await postJsonAndParse<QueryResponse>(url, body, "query step");
-      const got = data.records ?? [];
-      console.log(`[icloud-album] page startRank=${startRank} resultsLimit=${PAGE_SIZE_ITEMS * 2} -> ${got.length} records`);
-      return got;
+      return data.records ?? [];
     })
   );
 
-  const records = pages.flat();
-  console.log(`[icloud-album] itemCount=${itemCount} totalRecordsFetched=${records.length}`);
-
-  return records;
+  return pages.flat();
 }
 
 function fieldValue(fields: Record<string, RawFieldValue>, key: string): unknown {
@@ -260,31 +255,10 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
 
   const masters = new Map<string, RawRecord>();
   const assets: RawRecord[] = [];
-  let duplicateMasterOverwrites = 0;
   for (const record of records) {
-    if (record.recordType === "CPLMaster") {
-      const existing = masters.get(record.recordName);
-      if (existing) {
-        duplicateMasterOverwrites++;
-        const existingFieldCount = Object.keys(existing.fields).length;
-        const newFieldCount = Object.keys(record.fields).length;
-        if (existingFieldCount !== newFieldCount) {
-          console.log(
-            `[icloud-album] duplicate master ${record.recordName}: existing had ${existingFieldCount} fields, new has ${newFieldCount} fields`
-          );
-        }
-      }
-      masters.set(record.recordName, record);
-    } else if (record.recordType === "CPLAsset") assets.push(record);
+    if (record.recordType === "CPLMaster") masters.set(record.recordName, record);
+    else if (record.recordType === "CPLAsset") assets.push(record);
   }
-  if (duplicateMasterOverwrites > 0) {
-    console.log(`[icloud-album] duplicateMasterOverwrites: ${duplicateMasterOverwrites}`);
-  }
-
-  let skippedNoMaster = 0;
-  let skippedNoDerivative = 0;
-  let loggedMissingDerivativeSample = 0;
-  const itemTypeCounts: Record<string, number> = {};
 
   const photos: AlbumPhoto[] = [];
   for (const asset of assets) {
@@ -294,13 +268,7 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
     const master = masterRefValue?.recordName
       ? masters.get(masterRefValue.recordName)
       : undefined;
-    if (!master) {
-      skippedNoMaster++;
-      continue;
-    }
-
-    const itemType = String(fieldValue(master.fields, "itemType") ?? "unknown");
-    itemTypeCounts[itemType] = (itemTypeCounts[itemType] ?? 0) + 1;
+    if (!master) continue;
 
     const thumbUrl = buildAssetUrl(
       fieldValue(master.fields, "resJPEGThumbRes"),
@@ -326,16 +294,7 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
       thumbUrl;
 
     // Skip only masters with no usable image at all (e.g. video-only records).
-    if (!thumbUrl) {
-      skippedNoDerivative++;
-      if (loggedMissingDerivativeSample < 5) {
-        loggedMissingDerivativeSample++;
-        console.log(
-          `[icloud-album] missing derivative: itemType=${itemType} master=${master.recordName} fields=${JSON.stringify(Object.keys(master.fields))}`
-        );
-      }
-      continue;
-    }
+    if (!thumbUrl) continue;
 
     const dateMs = Number(
       fieldValue(asset.fields, "assetDate") ??
@@ -364,23 +323,6 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
 
   photos.sort(
     (a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
-  );
-
-  console.log(
-    "[icloud-album] records:",
-    records.length,
-    "masters:",
-    masters.size,
-    "assets:",
-    assets.length,
-    "skippedNoMaster:",
-    skippedNoMaster,
-    "skippedNoDerivative:",
-    skippedNoDerivative,
-    "photos:",
-    photos.length,
-    "itemTypeCounts:",
-    JSON.stringify(itemTypeCounts)
   );
 
   return { streamName: title || "Shared Album", photos };
