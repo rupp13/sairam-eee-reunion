@@ -71,7 +71,7 @@ export default function Home() {
           <h1 className="mt-6 max-w-3xl font-display text-4xl leading-tight text-paper sm:text-5xl">
             25th Year Re-Union &mdash; USA Event
           </h1>
-          <p className="mt-4 font-display text-lg text-brass">
+          <p className="mt-4 font-display text-2xl text-brass sm:text-3xl">
             Oct 24, 2026 (Sat) &middot; Dallas, TX
           </p>
           <p className="mt-6 max-w-xl text-paper-dim">
@@ -102,32 +102,6 @@ export default function Home() {
           Things we will do together{" "}
           <span className="text-paper-dim">(Suggested)</span>
         </h2>
-
-        <div className="mt-8 max-w-sm rounded-2xl border border-[var(--line)] bg-ink-2 p-6">
-          <p className="font-display text-lg text-brass">Dallas weather</p>
-          <p className="mt-2 text-sm text-paper-dim">
-            Typical early-October temps for the Oct 24th week &mdash; check
-            live forecast closer to travel.
-          </p>
-          <div className="mt-5 flex gap-8">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-paper-dim">
-                Day
-              </p>
-              <p className="mt-1 font-display text-xl text-paper">
-                78&ndash;84&deg;F
-              </p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-paper-dim">
-                Evening
-              </p>
-              <p className="mt-1 font-display text-xl text-paper">
-                60&ndash;66&deg;F
-              </p>
-            </div>
-          </div>
-        </div>
 
         <ScheduleTable schedule={schedule} />
       </section>
