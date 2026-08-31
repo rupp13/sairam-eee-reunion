@@ -64,7 +64,16 @@ export default function ScheduleTable({ schedule }: { schedule: ScheduleItem[] }
                       <>
                         <span className="text-paper">{row.location}</span>
                         <br />
-                        {row.address}
+                        {row.address && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row.address)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline decoration-dotted underline-offset-2 hover:text-paper"
+                          >
+                            {row.address}
+                          </a>
+                        )}
                       </>
                     ) : (
                       "—"

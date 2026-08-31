@@ -27,8 +27,12 @@ const schedule: ScheduleItem[] = [
   {
     time: "2 PM – 4 PM",
     activity: "Event",
-    location: "Top Golf",
-    address: "8787 Park Ln, Dallas, TX 75231",
+    location: "Game Show Battle Rooms",
+    address: "4887 Alpha Rd #250, Farmers Branch, TX 75244",
+    description: "Estimated cost $35–38 per person.",
+    links: [
+      { label: "Website", url: "https://gameshowbattlerooms.com/" },
+    ],
   },
   {
     time: "5 PM – 8 PM",
