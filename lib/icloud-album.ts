@@ -260,13 +260,30 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
 
   const masters = new Map<string, RawRecord>();
   const assets: RawRecord[] = [];
+  let duplicateMasterOverwrites = 0;
   for (const record of records) {
-    if (record.recordType === "CPLMaster") masters.set(record.recordName, record);
-    else if (record.recordType === "CPLAsset") assets.push(record);
+    if (record.recordType === "CPLMaster") {
+      const existing = masters.get(record.recordName);
+      if (existing) {
+        duplicateMasterOverwrites++;
+        const existingFieldCount = Object.keys(existing.fields).length;
+        const newFieldCount = Object.keys(record.fields).length;
+        if (existingFieldCount !== newFieldCount) {
+          console.log(
+            `[icloud-album] duplicate master ${record.recordName}: existing had ${existingFieldCount} fields, new has ${newFieldCount} fields`
+          );
+        }
+      }
+      masters.set(record.recordName, record);
+    } else if (record.recordType === "CPLAsset") assets.push(record);
+  }
+  if (duplicateMasterOverwrites > 0) {
+    console.log(`[icloud-album] duplicateMasterOverwrites: ${duplicateMasterOverwrites}`);
   }
 
   let skippedNoMaster = 0;
   let skippedNoDerivative = 0;
+  let loggedMissingDerivativeSample = 0;
   const itemTypeCounts: Record<string, number> = {};
 
   const photos: AlbumPhoto[] = [];
@@ -303,6 +320,12 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
     // of photos is the current scope.
     if (!thumbUrl || !fullUrl) {
       skippedNoDerivative++;
+      if (loggedMissingDerivativeSample < 5) {
+        loggedMissingDerivativeSample++;
+        console.log(
+          `[icloud-album] missing derivative: itemType=${itemType} master=${master.recordName} fields=${JSON.stringify(Object.keys(master.fields))}`
+        );
+      }
       continue;
     }
 
