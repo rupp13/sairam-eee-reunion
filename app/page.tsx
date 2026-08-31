@@ -21,8 +21,10 @@ const schedule: ScheduleItem[] = [
   {
     time: "12 Noon – 1:30 PM",
     activity: "Lunch",
-    location: "Gyanna Indian Restaurant",
-    address: "1408–1410 Main St, Dallas, TX 75202",
+    location: "TMF Leadership Suite",
+    address: "3705 Cedar Springs Road, Dallas, TX 75219",
+    description:
+      "Lunch will be catered right at the suite, with the cost shared equally among everyone. Staying put means less time on the road and more quality time catching up.",
   },
   {
     time: "2 PM – 4 PM",
