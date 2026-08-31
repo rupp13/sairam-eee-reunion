@@ -6,7 +6,9 @@
 //      plus a short-lived anonymousPublicAccess token and the per-share
 //      database partition host to use for everything else.
 //   2. POST {partition}/.../shared/records/query -- fetches CPLMaster +
-//      CPLAsset records for the zone (paginated via continuationMarker).
+//      CPLAsset records for the zone. Paginated manually via startRank (an
+//      item index) since this record type returns no continuation cursor;
+//      total item count comes from a separate HyperionIndexCountLookup query.
 //   3. Each CPLMaster record's derivative fields (resJPEGThumbRes, etc.)
 //      carry a pre-signed, unauthenticated download URL good for ~15-20 min.
 
@@ -114,8 +116,47 @@ type RawRecord = {
 
 type QueryResponse = {
   records?: RawRecord[];
-  continuationMarker?: string;
 };
+
+type CountResponse = {
+  records?: Array<{ fields?: Record<string, RawFieldValue> }>;
+};
+
+// Items per request while paging through the album. Chosen to match sizes
+// seen from the real web viewer (it never asks for more than 50 records —
+// i.e. 25 items — at once); asking for everything in one large request
+// silently gets capped short by the server with no error and no signal
+// that more data exists.
+const PAGE_SIZE_ITEMS = 25;
+
+async function getItemCount(
+  queryUrl: string,
+  zoneID: ZoneID
+): Promise<number> {
+  const data = await postJsonAndParse<CountResponse>(
+    queryUrl,
+    {
+      query: {
+        recordType: "HyperionIndexCountLookup",
+        filterBy: [
+          {
+            fieldName: "indexCountID",
+            comparator: "IN",
+            fieldValue: { value: ["CPLAssetByAddedDate"], type: "STRING_LIST" },
+          },
+        ],
+      },
+      zoneID,
+    },
+    "count step"
+  );
+
+  const count = data.records?.[0]?.fields?.itemCount?.value;
+  if (typeof count !== "number") {
+    throw new Error(`count step: response missing itemCount — ${JSON.stringify(data).slice(0, 300)}`);
+  }
+  return count;
+}
 
 async function queryAllAssetRecords(
   partitionUrl: string,
@@ -136,38 +177,34 @@ async function queryAllAssetRecords(
   });
   const url = `${partitionUrl}/database/1/com.apple.photos.cloud/production/shared/records/query?${params}`;
 
-  const records: RawRecord[] = [];
-  const initialQuery = {
-    recordType: "CPLAssetAndMasterByAddedDate",
-    filterBy: [
-      {
-        fieldName: "direction",
-        comparator: "EQUALS",
-        fieldValue: { value: "ASCENDING", type: "STRING" },
-      },
-      {
-        fieldName: "startRank",
-        comparator: "EQUALS",
-        fieldValue: { value: 0, type: "INT64" },
-      },
-    ],
-  };
-  let body: Record<string, unknown> = { query: initialQuery, zoneID, resultsLimit: 200 };
+  const itemCount = await getItemCount(url, zoneID);
 
-  // Defensive cap: a reunion album shouldn't need more than a handful of
-  // pages, and this guards against ever looping forever on a protocol quirk.
-  for (let page = 0; page < 20; page++) {
+  // The API doesn't return a continuation cursor for this record type —
+  // pagination is manual, walking startRank (an item index) in fixed-size
+  // steps until every item has been requested.
+  const records: RawRecord[] = [];
+  for (let startRank = 0; startRank < itemCount; startRank += PAGE_SIZE_ITEMS) {
+    const body = {
+      query: {
+        recordType: "CPLAssetAndMasterByAddedDate",
+        filterBy: [
+          {
+            fieldName: "direction",
+            comparator: "EQUALS",
+            fieldValue: { value: "ASCENDING", type: "STRING" },
+          },
+          {
+            fieldName: "startRank",
+            comparator: "EQUALS",
+            fieldValue: { value: startRank, type: "INT64" },
+          },
+        ],
+      },
+      zoneID,
+      resultsLimit: PAGE_SIZE_ITEMS * 2,
+    };
     const data = await postJsonAndParse<QueryResponse>(url, body, "query step");
     records.push(...(data.records ?? []));
-    if (!data.continuationMarker) break;
-    // The API requires "query" on every request, even when paginating via
-    // continuationMarker — omitting it fails with "missing required query field".
-    body = {
-      query: initialQuery,
-      continuationMarker: data.continuationMarker,
-      zoneID,
-      resultsLimit: 200,
-    };
   }
 
   return records;
