@@ -296,9 +296,11 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
     // Skip only masters with no usable image at all (e.g. video-only records).
     if (!thumbUrl) continue;
 
+    // Sort by when the photo was added to the album (not when it was taken),
+    // so newly-added photos surface first even if their capture date is old.
     const dateMs = Number(
-      fieldValue(asset.fields, "assetDate") ??
-        fieldValue(asset.fields, "addedDate") ??
+      fieldValue(asset.fields, "addedDate") ??
+        fieldValue(asset.fields, "assetDate") ??
         Date.now()
     );
 
