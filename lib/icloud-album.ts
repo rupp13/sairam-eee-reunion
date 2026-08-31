@@ -204,8 +204,12 @@ async function queryAllAssetRecords(
       resultsLimit: PAGE_SIZE_ITEMS * 2,
     };
     const data = await postJsonAndParse<QueryResponse>(url, body, "query step");
+    const got = data.records?.length ?? 0;
+    console.log(`[icloud-album] page startRank=${startRank} resultsLimit=${PAGE_SIZE_ITEMS * 2} -> ${got} records`);
     records.push(...(data.records ?? []));
   }
+
+  console.log(`[icloud-album] itemCount=${itemCount} totalRecordsFetched=${records.length}`);
 
   return records;
 }
@@ -252,6 +256,10 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
     else if (record.recordType === "CPLAsset") assets.push(record);
   }
 
+  let skippedNoMaster = 0;
+  let skippedNoDerivative = 0;
+  const itemTypeCounts: Record<string, number> = {};
+
   const photos: AlbumPhoto[] = [];
   for (const asset of assets) {
     const masterRefValue = fieldValue(asset.fields, "masterRef") as
@@ -260,7 +268,13 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
     const master = masterRefValue?.recordName
       ? masters.get(masterRefValue.recordName)
       : undefined;
-    if (!master) continue;
+    if (!master) {
+      skippedNoMaster++;
+      continue;
+    }
+
+    const itemType = String(fieldValue(master.fields, "itemType") ?? "unknown");
+    itemTypeCounts[itemType] = (itemTypeCounts[itemType] ?? 0) + 1;
 
     const thumbUrl = buildAssetUrl(
       fieldValue(master.fields, "resJPEGThumbRes"),
@@ -278,7 +292,10 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
 
     // Skip non-photo masters (e.g. video-only records) for now — view/download
     // of photos is the current scope.
-    if (!thumbUrl || !fullUrl) continue;
+    if (!thumbUrl || !fullUrl) {
+      skippedNoDerivative++;
+      continue;
+    }
 
     const dateMs = Number(
       fieldValue(asset.fields, "assetDate") ??
@@ -307,6 +324,23 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
 
   photos.sort(
     (a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+  );
+
+  console.log(
+    "[icloud-album] records:",
+    records.length,
+    "masters:",
+    masters.size,
+    "assets:",
+    assets.length,
+    "skippedNoMaster:",
+    skippedNoMaster,
+    "skippedNoDerivative:",
+    skippedNoDerivative,
+    "photos:",
+    photos.length,
+    "itemTypeCounts:",
+    JSON.stringify(itemTypeCounts)
   );
 
   return { streamName: title || "Shared Album", photos };
