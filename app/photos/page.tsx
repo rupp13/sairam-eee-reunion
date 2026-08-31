@@ -101,6 +101,11 @@ export default function PhotosPage() {
           <h1 className="mt-3 font-display text-3xl text-paper sm:text-4xl">
             Reunion photo album
           </h1>
+          {photos && (
+            <p className="mt-2 text-sm text-paper-dim">
+              {photos.length} {photos.length === 1 ? "photo" : "photos"}
+            </p>
+          )}
         </div>
         <button
           type="button"
