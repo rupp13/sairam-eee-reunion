@@ -64,7 +64,7 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-ink/80 via-ink/70 to-ink" />
         </div>
-        <div className="relative mx-auto max-w-5xl px-6 py-28 sm:py-36">
+        <div className="relative mx-auto max-w-5xl px-6 pt-28 pb-16 sm:pt-36 sm:pb-20">
           <p className="text-xs uppercase tracking-[0.25em] text-brass">
             Sai Ram Engineering College &middot; Reunion 1997&ndash;2001
           </p>
@@ -97,7 +97,7 @@ export default function Home() {
       </section>
 
       {/* Schedule */}
-      <section className="mx-auto max-w-5xl px-6 py-20">
+      <section className="mx-auto max-w-5xl px-6 pt-12 pb-20">
         <h2 className="font-display text-3xl text-paper sm:text-4xl">
           Things we will do together{" "}
           <span className="text-paper-dim">(Suggested)</span>
