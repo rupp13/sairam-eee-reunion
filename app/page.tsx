@@ -71,13 +71,13 @@ export default function Home() {
           <h1 className="mt-6 max-w-3xl font-display text-4xl leading-tight text-paper sm:text-5xl">
             25th Year Re-Union &mdash; USA Event
           </h1>
+          <p className="mt-4 font-display text-lg text-brass">
+            Oct 24, 2026 (Sat) &middot; Dallas, TX
+          </p>
           <p className="mt-6 max-w-xl text-paper-dim">
             A warm gathering to reconnect with classmates, remember the labs
             and lecture halls, and celebrate the friendships that kept
             glowing long after graduation.
-          </p>
-          <p className="mt-8 font-display text-lg text-paper">
-            Dallas, Texas
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -96,16 +96,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Event date & location */}
+      {/* Schedule */}
       <section className="mx-auto max-w-5xl px-6 py-20">
-        <p className="text-xs uppercase tracking-[0.25em] text-brass">
-          Event date &amp; location
-        </p>
-        <h2 className="mt-3 font-display text-3xl text-paper sm:text-4xl">
-          Oct 24, 2026 (Sat), Dallas TX
+        <h2 className="font-display text-3xl text-paper sm:text-4xl">
+          Things we will do together{" "}
+          <span className="text-paper-dim">(Suggested)</span>
         </h2>
 
-        <div className="mt-10 max-w-sm rounded-2xl border border-[var(--line)] bg-ink-2 p-6">
+        <div className="mt-8 max-w-sm rounded-2xl border border-[var(--line)] bg-ink-2 p-6">
           <p className="font-display text-lg text-brass">Dallas weather</p>
           <p className="mt-2 text-sm text-paper-dim">
             Typical early-October temps for the Oct 24th week &mdash; check
@@ -130,18 +128,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
-
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="rule" />
-      </div>
-
-      {/* Schedule */}
-      <section className="mx-auto max-w-5xl px-6 py-20">
-        <h2 className="font-display text-3xl text-paper sm:text-4xl">
-          Things we will do together{" "}
-          <span className="text-paper-dim">(Suggested)</span>
-        </h2>
 
         <ScheduleTable schedule={schedule} />
       </section>
