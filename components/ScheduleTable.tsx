@@ -55,8 +55,24 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
+function rowHasDetails(row: ScheduleItem): boolean {
+  return Boolean(row.description || row.photos?.length || row.links?.length || row.videoUrl);
+}
+
 export default function ScheduleTable({ schedule }: { schedule: ScheduleItem[] }) {
-  const [expanded, setExpanded] = useState<number | null>(null);
+  // All rows with details start expanded; the arrow still lets you collapse one.
+  const [expanded, setExpanded] = useState<Set<number>>(
+    () => new Set(schedule.map((row, i) => (rowHasDetails(row) ? i : -1)).filter((i) => i !== -1))
+  );
+
+  function toggleRow(i: number) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+  }
 
   return (
     <div className="mt-10 overflow-hidden rounded-2xl border border-[var(--line)]">
@@ -75,7 +91,7 @@ export default function ScheduleTable({ schedule }: { schedule: ScheduleItem[] }
             const hasDetails = Boolean(
               row.description || row.photos?.length || row.links?.length || embedUrl
             );
-            const isOpen = hasDetails && expanded === i;
+            const isOpen = hasDetails && expanded.has(i);
             const isLastRow = i === schedule.length - 1;
 
             return (
@@ -107,7 +123,7 @@ export default function ScheduleTable({ schedule }: { schedule: ScheduleItem[] }
                     {hasDetails && (
                       <button
                         type="button"
-                        onClick={() => setExpanded(isOpen ? null : i)}
+                        onClick={() => toggleRow(i)}
                         aria-expanded={isOpen}
                         aria-label={isOpen ? "Hide details" : "Show details"}
                         className="flex h-7 w-7 items-center justify-center rounded-full text-brass transition-opacity hover:opacity-70"
