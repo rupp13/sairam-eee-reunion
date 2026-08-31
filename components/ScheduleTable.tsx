@@ -12,7 +12,30 @@ export type ScheduleItem = {
   description?: string;
   photos?: string[];
   links?: ScheduleLink[];
+  videoUrl?: string;
 };
+
+function getYouTubeEmbedUrl(url: string): string | null {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+
+  let videoId: string | null = null;
+  if (parsed.hostname === "youtu.be") {
+    videoId = parsed.pathname.slice(1);
+  } else if (parsed.hostname.endsWith("youtube.com")) {
+    if (parsed.pathname === "/watch") {
+      videoId = parsed.searchParams.get("v");
+    } else if (parsed.pathname.startsWith("/embed/")) {
+      videoId = parsed.pathname.slice("/embed/".length);
+    }
+  }
+
+  return videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : null;
+}
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -48,8 +71,9 @@ export default function ScheduleTable({ schedule }: { schedule: ScheduleItem[] }
         </thead>
         <tbody>
           {schedule.map((row, i) => {
+            const embedUrl = row.videoUrl ? getYouTubeEmbedUrl(row.videoUrl) : null;
             const hasDetails = Boolean(
-              row.description || row.photos?.length || row.links?.length
+              row.description || row.photos?.length || row.links?.length || embedUrl
             );
             const isOpen = hasDetails && expanded === i;
             const isLastRow = i === schedule.length - 1;
@@ -100,6 +124,17 @@ export default function ScheduleTable({ schedule }: { schedule: ScheduleItem[] }
                         <p className="max-w-2xl text-sm text-paper-dim">
                           {row.description}
                         </p>
+                      )}
+                      {embedUrl && (
+                        <div className="mt-4 aspect-video max-w-xl overflow-hidden rounded-lg">
+                          <iframe
+                            src={embedUrl}
+                            title={`${row.activity} video`}
+                            className="h-full w-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                          />
+                        </div>
                       )}
                       {row.photos && row.photos.length > 0 && (
                         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">

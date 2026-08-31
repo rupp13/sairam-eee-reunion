@@ -30,6 +30,7 @@ const schedule: ScheduleItem[] = [
     location: "Game Show Battle Rooms",
     address: "4887 Alpha Rd #250, Farmers Branch, TX 75244",
     description: "Estimated cost $35–38 per person.",
+    videoUrl: "https://youtu.be/zP6ilJ13Z_c",
     links: [
       { label: "Website", url: "https://gameshowbattlerooms.com/" },
     ],
