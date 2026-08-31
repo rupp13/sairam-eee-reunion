@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { useState } from "react";
 
 export type ScheduleLink = { label: string; url: string };
 
@@ -75,120 +75,111 @@ export default function ScheduleTable({ schedule }: { schedule: ScheduleItem[] }
   }
 
   return (
-    <div className="mt-10 overflow-hidden rounded-2xl border border-[var(--line)]">
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className="border-b border-[var(--line)] bg-ink-2 text-xs uppercase tracking-wide text-brass">
-            <th className="px-5 py-3 font-medium">Time</th>
-            <th className="px-5 py-3 font-medium">Activity</th>
-            <th className="px-5 py-3 font-medium">Location</th>
-            <th className="w-12 px-3 py-3" />
-          </tr>
-        </thead>
-        <tbody>
-          {schedule.map((row, i) => {
-            const embedUrl = row.videoUrl ? getYouTubeEmbedUrl(row.videoUrl) : null;
-            const hasDetails = Boolean(
-              row.description || row.photos?.length || row.links?.length || embedUrl
-            );
-            const isOpen = hasDetails && expanded.has(i);
-            const isLastRow = i === schedule.length - 1;
+    <div className="mt-10 space-y-3">
+      {schedule.map((row, i) => {
+        const embedUrl = row.videoUrl ? getYouTubeEmbedUrl(row.videoUrl) : null;
+        const hasDetails = Boolean(
+          row.description || row.photos?.length || row.links?.length || embedUrl
+        );
+        const isOpen = hasDetails && expanded.has(i);
 
-            return (
-              <Fragment key={row.time}>
-                <tr className={!isLastRow || isOpen ? "border-b border-[var(--line)]" : ""}>
-                  <td className="px-5 py-4 align-top text-paper-dim">{row.time}</td>
-                  <td className="px-5 py-4 align-top text-paper">{row.activity}</td>
-                  <td className="px-5 py-4 align-top text-paper-dim">
-                    {row.location !== "—" ? (
+        return (
+          <div
+            key={row.time}
+            className="rounded-2xl border border-[var(--line)] bg-ink-2 p-5 sm:p-6"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-brass">
+                  {row.time}
+                </p>
+                <p className="mt-1 text-base font-medium text-paper sm:text-lg">
+                  {row.activity}
+                </p>
+                {row.location !== "—" && (
+                  <p className="mt-1 text-sm text-paper-dim">
+                    <span className="text-paper">{row.location}</span>
+                    {row.address && (
                       <>
-                        <span className="text-paper">{row.location}</span>
                         <br />
-                        {row.address && (
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row.address)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="underline decoration-dotted underline-offset-2 hover:text-paper"
-                          >
-                            {row.address}
-                          </a>
-                        )}
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline decoration-dotted underline-offset-2 hover:text-paper"
+                        >
+                          {row.address}
+                        </a>
                       </>
-                    ) : (
-                      "—"
                     )}
-                  </td>
-                  <td className="px-3 py-4 align-top">
-                    {hasDetails && (
-                      <button
-                        type="button"
-                        onClick={() => toggleRow(i)}
-                        aria-expanded={isOpen}
-                        aria-label={isOpen ? "Hide details" : "Show details"}
-                        className="flex h-7 w-7 items-center justify-center rounded-full text-brass transition-opacity hover:opacity-70"
-                      >
-                        <ChevronIcon open={isOpen} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-                {isOpen && (
-                  <tr className={!isLastRow ? "border-b border-[var(--line)]" : ""}>
-                    <td colSpan={4} className="bg-ink-2 px-5 py-5">
-                      {row.description && (
-                        <p className="max-w-2xl text-sm text-paper-dim">
-                          {row.description}
-                        </p>
-                      )}
-                      {embedUrl && (
-                        <div className="mt-4 aspect-video max-w-xl overflow-hidden rounded-lg">
-                          <iframe
-                            src={embedUrl}
-                            title={`${row.activity} video`}
-                            className="h-full w-full"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                          />
-                        </div>
-                      )}
-                      {row.photos && row.photos.length > 0 && (
-                        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                          {row.photos.map((src) => (
-                            // eslint-disable-next-line @next/next/no-img-element -- caller-provided photo host, not pre-registered with next/image
-                            <img
-                              key={src}
-                              src={src}
-                              alt={row.activity}
-                              loading="lazy"
-                              className="aspect-video w-full rounded-lg object-cover"
-                            />
-                          ))}
-                        </div>
-                      )}
-                      {row.links && row.links.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {row.links.map((link) => (
-                            <a
-                              key={link.url}
-                              href={link.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="rounded-full bg-brass px-4 py-1.5 text-xs font-medium text-ink transition-opacity hover:opacity-90"
-                            >
-                              {link.label}
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
+                  </p>
                 )}
-              </Fragment>
-            );
-          })}
-        </tbody>
-      </table>
+              </div>
+              {hasDetails && (
+                <button
+                  type="button"
+                  onClick={() => toggleRow(i)}
+                  aria-expanded={isOpen}
+                  aria-label={isOpen ? "Hide details" : "Show details"}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-brass transition-opacity hover:opacity-70"
+                >
+                  <ChevronIcon open={isOpen} />
+                </button>
+              )}
+            </div>
+
+            {isOpen && (
+              <div className="mt-4 border-t border-[var(--line)] pt-4">
+                {row.description && (
+                  <p className="max-w-2xl text-sm text-paper-dim">
+                    {row.description}
+                  </p>
+                )}
+                {embedUrl && (
+                  <div className="mt-4 aspect-video max-w-xl overflow-hidden rounded-lg">
+                    <iframe
+                      src={embedUrl}
+                      title={`${row.activity} video`}
+                      className="h-full w-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+                {row.photos && row.photos.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {row.photos.map((src) => (
+                      // eslint-disable-next-line @next/next/no-img-element -- caller-provided photo host, not pre-registered with next/image
+                      <img
+                        key={src}
+                        src={src}
+                        alt={row.activity}
+                        loading="lazy"
+                        className="aspect-video w-full rounded-lg object-cover"
+                      />
+                    ))}
+                  </div>
+                )}
+                {row.links && row.links.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {row.links.map((link) => (
+                      <a
+                        key={link.url}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full bg-brass px-4 py-1.5 text-xs font-medium text-ink transition-opacity hover:opacity-90"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
