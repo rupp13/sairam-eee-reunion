@@ -11,6 +11,12 @@ const schedule: ScheduleItem[] = [
     activity: "Meet and Greet",
     location: "TMF Leadership Suite",
     address: "3705 Cedar Springs Road, Dallas, TX 75219",
+    description:
+      "2 flatscreens with Apple TV, whiteboard, and multi-level seating. The suite can accommodate roughly 25–30 people.",
+    photos: [
+      "https://framerusercontent.com/images/9FT3CAdSWLX3INcVTmfEBfLCAM.webp",
+      "https://framerusercontent.com/images/pZelMrPOpduWZXbUwppWJYa62U.webp",
+    ],
   },
   {
     time: "12 Noon – 1:30 PM",
@@ -94,64 +100,29 @@ export default function Home() {
           Oct 24, 2026 (Sat), Dallas TX
         </h2>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2">
-          <div className="rounded-2xl border border-[var(--line)] bg-ink-2 p-6">
-            <p className="font-display text-lg text-brass">Dallas weather</p>
-            <p className="mt-2 text-sm text-paper-dim">
-              Typical early-October temps for the Oct 24th week &mdash; check
-              live forecast closer to travel.
-            </p>
-            <div className="mt-5 flex gap-8">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-paper-dim">
-                  Day
-                </p>
-                <p className="mt-1 font-display text-xl text-paper">
-                  78&ndash;84&deg;F
-                </p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-wide text-paper-dim">
-                  Evening
-                </p>
-                <p className="mt-1 font-display text-xl text-paper">
-                  60&ndash;66&deg;F
-                </p>
-              </div>
+        <div className="mt-10 max-w-sm rounded-2xl border border-[var(--line)] bg-ink-2 p-6">
+          <p className="font-display text-lg text-brass">Dallas weather</p>
+          <p className="mt-2 text-sm text-paper-dim">
+            Typical early-October temps for the Oct 24th week &mdash; check
+            live forecast closer to travel.
+          </p>
+          <div className="mt-5 flex gap-8">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-paper-dim">
+                Day
+              </p>
+              <p className="mt-1 font-display text-xl text-paper">
+                78&ndash;84&deg;F
+              </p>
             </div>
-          </div>
-
-          <div className="rounded-2xl border border-[var(--line)] bg-ink-2 p-6">
-            <p className="font-display text-lg text-brass">Venue</p>
-            <p className="mt-2 font-medium text-paper">
-              TMF Leadership Suite
-            </p>
-            <p className="text-sm text-paper-dim">
-              3705 Cedar Springs Road, Dallas, TX 75219
-            </p>
-            <p className="mt-3 text-sm text-paper-dim">
-              2 flatscreens with Apple TV, whiteboard, and multi-level
-              seating. The suite can accommodate roughly 25&ndash;30 people.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-6 sm:grid-cols-2">
-          <div className="relative aspect-[3/4] overflow-hidden rounded-2xl">
-            <Image
-              src="https://framerusercontent.com/images/9FT3CAdSWLX3INcVTmfEBfLCAM.webp"
-              alt="Union Coffee venue photo"
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="relative aspect-[3/4] overflow-hidden rounded-2xl">
-            <Image
-              src="https://framerusercontent.com/images/pZelMrPOpduWZXbUwppWJYa62U.webp"
-              alt="Union Coffee venue photo"
-              fill
-              className="object-cover"
-            />
+            <div>
+              <p className="text-xs uppercase tracking-wide text-paper-dim">
+                Evening
+              </p>
+              <p className="mt-1 font-display text-xl text-paper">
+                60&ndash;66&deg;F
+              </p>
+            </div>
           </div>
         </div>
       </section>
