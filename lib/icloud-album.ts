@@ -306,6 +306,10 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
       fieldValue(master.fields, "resJPEGThumbRes"),
       fieldValue(master.fields, "resJPEGThumbFileType")
     );
+    // Not every master has a "Large"/"Medium" derivative generated (some
+    // only ever get a thumbnail + the original file) — fall all the way
+    // back to the thumbnail itself rather than dropping the photo, since
+    // a thumbnail is all the page actually needs right now.
     const fullUrl =
       buildAssetUrl(
         fieldValue(master.fields, "resJPEGLargeRes"),
@@ -314,11 +318,15 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
       buildAssetUrl(
         fieldValue(master.fields, "resJPEGMedRes"),
         fieldValue(master.fields, "resJPEGMedFileType")
-      );
+      ) ??
+      buildAssetUrl(
+        fieldValue(master.fields, "resOriginalRes"),
+        fieldValue(master.fields, "resOriginalFileType")
+      ) ??
+      thumbUrl;
 
-    // Skip non-photo masters (e.g. video-only records) for now — view/download
-    // of photos is the current scope.
-    if (!thumbUrl || !fullUrl) {
+    // Skip only masters with no usable image at all (e.g. video-only records).
+    if (!thumbUrl) {
       skippedNoDerivative++;
       if (loggedMissingDerivativeSample < 5) {
         loggedMissingDerivativeSample++;
@@ -350,7 +358,7 @@ export async function getAlbumPhotos(token: string): Promise<Album> {
       dateCreated: new Date(dateMs).toISOString(),
       caption: "",
       thumbUrl,
-      fullUrl,
+      fullUrl: fullUrl ?? thumbUrl,
     });
   }
 
