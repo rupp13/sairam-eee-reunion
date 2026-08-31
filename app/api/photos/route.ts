@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAlbumPhotos, type Album } from "@/lib/icloud-album";
 import { isRsvpListAuthorized } from "@/lib/admin-auth";
 
+// Extra headroom for a larger album's paginated fetch, beyond the default.
+export const maxDuration = 60;
+
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 function describeError(err: unknown): string {

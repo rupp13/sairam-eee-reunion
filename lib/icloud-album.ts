@@ -181,34 +181,43 @@ async function queryAllAssetRecords(
 
   // The API doesn't return a continuation cursor for this record type —
   // pagination is manual, walking startRank (an item index) in fixed-size
-  // steps until every item has been requested.
-  const records: RawRecord[] = [];
+  // steps until every item has been requested. Fired concurrently rather
+  // than awaited one at a time: sequential round-trips to Apple for a
+  // larger album can add up past Vercel's function time limit.
+  const startRanks: number[] = [];
   for (let startRank = 0; startRank < itemCount; startRank += PAGE_SIZE_ITEMS) {
-    const body = {
-      query: {
-        recordType: "CPLAssetAndMasterByAddedDate",
-        filterBy: [
-          {
-            fieldName: "direction",
-            comparator: "EQUALS",
-            fieldValue: { value: "ASCENDING", type: "STRING" },
-          },
-          {
-            fieldName: "startRank",
-            comparator: "EQUALS",
-            fieldValue: { value: startRank, type: "INT64" },
-          },
-        ],
-      },
-      zoneID,
-      resultsLimit: PAGE_SIZE_ITEMS * 2,
-    };
-    const data = await postJsonAndParse<QueryResponse>(url, body, "query step");
-    const got = data.records?.length ?? 0;
-    console.log(`[icloud-album] page startRank=${startRank} resultsLimit=${PAGE_SIZE_ITEMS * 2} -> ${got} records`);
-    records.push(...(data.records ?? []));
+    startRanks.push(startRank);
   }
 
+  const pages = await Promise.all(
+    startRanks.map(async (startRank) => {
+      const body = {
+        query: {
+          recordType: "CPLAssetAndMasterByAddedDate",
+          filterBy: [
+            {
+              fieldName: "direction",
+              comparator: "EQUALS",
+              fieldValue: { value: "ASCENDING", type: "STRING" },
+            },
+            {
+              fieldName: "startRank",
+              comparator: "EQUALS",
+              fieldValue: { value: startRank, type: "INT64" },
+            },
+          ],
+        },
+        zoneID,
+        resultsLimit: PAGE_SIZE_ITEMS * 2,
+      };
+      const data = await postJsonAndParse<QueryResponse>(url, body, "query step");
+      const got = data.records ?? [];
+      console.log(`[icloud-album] page startRank=${startRank} resultsLimit=${PAGE_SIZE_ITEMS * 2} -> ${got.length} records`);
+      return got;
+    })
+  );
+
+  const records = pages.flat();
   console.log(`[icloud-album] itemCount=${itemCount} totalRecordsFetched=${records.length}`);
 
   return records;
