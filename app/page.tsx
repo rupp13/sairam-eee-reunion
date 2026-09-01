@@ -100,8 +100,16 @@ export default function Home() {
 
       {/* Group T-Shirt */}
       <section className="mx-auto max-w-5xl px-6 pt-10">
-        <div className="rounded-2xl border border-[var(--line)] bg-ink-2 p-6 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:p-8">
-          <div>
+        <div className="rounded-2xl border border-[var(--line)] bg-ink-2 p-6 sm:flex sm:items-center sm:gap-8 sm:p-8">
+          <div className="relative mx-auto h-36 w-36 shrink-0 overflow-hidden rounded-xl bg-white sm:mx-0">
+            <Image
+              src="/tshirt-preview.png"
+              alt="Reunion group t-shirt preview"
+              fill
+              className="object-contain"
+            />
+          </div>
+          <div className="mt-6 sm:mt-0 sm:flex-1">
             <p className="text-xs uppercase tracking-[0.25em] text-brass">
               Group T-Shirt
             </p>
@@ -118,7 +126,7 @@ export default function Home() {
             href="https://a.co/d/0fklVY7I"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-block whitespace-nowrap rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90 sm:mt-0"
+            className="mt-6 block whitespace-nowrap rounded-full bg-brass px-7 py-3 text-center text-sm font-medium text-ink transition-opacity hover:opacity-90 sm:mt-0 sm:w-auto sm:shrink-0"
           >
             Buy on Amazon
           </a>
