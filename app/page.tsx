@@ -117,9 +117,10 @@ export default function Home() {
               Wear it for the group picture
             </h2>
             <p className="mt-3 max-w-xl text-paper-dim">
-              Color: Black. Please self order and wear it when you come!
-              You don&rsquo;t want to be the odd person out in the group
-              picture.
+              Please self order the{" "}
+              <strong className="font-semibold text-paper">black</strong>{" "}
+              t-shirt and wear it when you come! You don&rsquo;t want to be
+              the odd person out in the group picture.
             </p>
           </div>
           <a
