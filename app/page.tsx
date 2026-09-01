@@ -98,6 +98,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Group T-Shirt */}
+      <section className="mx-auto max-w-5xl px-6 pt-10">
+        <div className="rounded-2xl border border-[var(--line)] bg-ink-2 p-6 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:p-8">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-brass">
+              Group T-Shirt
+            </p>
+            <h2 className="mt-3 font-display text-2xl text-paper sm:text-3xl">
+              Wear it for the group picture
+            </h2>
+            <p className="mt-3 max-w-xl text-paper-dim">
+              Color: Black. Please self order and wear it when you come!
+              You don&rsquo;t want to be the odd person out in the group
+              picture.
+            </p>
+          </div>
+          <a
+            href="https://a.co/d/0fklVY7I"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-block whitespace-nowrap rounded-full bg-brass px-7 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90 sm:mt-0"
+          >
+            Buy on Amazon
+          </a>
+        </div>
+      </section>
+
       {/* Schedule */}
       <section className="mx-auto max-w-5xl px-6 pt-12 pb-20">
         <h2 className="font-display text-3xl text-paper sm:text-4xl">
