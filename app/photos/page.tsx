@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Photo = {
   guid: string;
@@ -20,6 +20,7 @@ export default function PhotosPage() {
   const [photos, setPhotos] = useState<Photo[] | null>(null);
   const [error, setError] = useState("");
   const [detail, setDetail] = useState("");
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("rsvp-list-secret");
@@ -64,6 +65,24 @@ export default function PhotosPage() {
     e.preventDefault();
     unlock(secret);
   }
+
+  const closeViewer = useCallback(() => setOpenIndex(null), []);
+
+  useEffect(() => {
+    if (openIndex === null || !photos) return;
+    const count = photos.length;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") closeViewer();
+      if (e.key === "ArrowRight") {
+        setOpenIndex((i) => (i === null ? i : Math.min(i + 1, count - 1)));
+      }
+      if (e.key === "ArrowLeft") {
+        setOpenIndex((i) => (i === null ? i : Math.max(i - 1, 0)));
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [openIndex, photos, closeViewer]);
 
   if (!authed) {
     return (
@@ -159,9 +178,11 @@ export default function PhotosPage() {
 
       {photos && photos.length > 0 && (
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {photos.map((photo) => (
-            <div
+          {photos.map((photo, index) => (
+            <button
               key={photo.guid}
+              type="button"
+              onClick={() => setOpenIndex(index)}
               className="relative aspect-square overflow-hidden rounded-xl border border-[var(--line)] bg-ink-2"
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- external, unpredictable iCloud CDN host */}
@@ -171,8 +192,59 @@ export default function PhotosPage() {
                 loading="lazy"
                 className="h-full w-full object-cover"
               />
-            </div>
+            </button>
           ))}
+        </div>
+      )}
+
+      {photos && openIndex !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          onClick={closeViewer}
+        >
+          <button
+            type="button"
+            onClick={closeViewer}
+            aria-label="Close"
+            className="absolute right-4 top-4 rounded-full bg-ink-2 px-3 py-1.5 text-sm text-paper"
+          >
+            Close ✕
+          </button>
+
+          {openIndex > 0 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenIndex(openIndex - 1);
+              }}
+              aria-label="Previous photo"
+              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-ink-2 px-3 py-2 text-lg text-paper sm:left-4"
+            >
+              ‹
+            </button>
+          )}
+          {openIndex < photos.length - 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenIndex(openIndex + 1);
+              }}
+              aria-label="Next photo"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-ink-2 px-3 py-2 text-lg text-paper sm:right-4"
+            >
+              ›
+            </button>
+          )}
+
+          {/* eslint-disable-next-line @next/next/no-img-element -- external, unpredictable iCloud CDN host */}
+          <img
+            src={photos[openIndex].fullUrl}
+            alt={photos[openIndex].caption || "Reunion photo"}
+            className="max-h-full max-w-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </section>
