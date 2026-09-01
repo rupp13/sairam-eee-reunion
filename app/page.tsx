@@ -114,7 +114,7 @@ export default function Home() {
               Group T-Shirt
             </p>
             <h2 className="mt-3 font-display text-2xl text-paper sm:text-3xl">
-              Wear it for the group picture
+              Meetup T-shirt
             </h2>
             <p className="mt-3 max-w-xl text-paper-dim">
               Please self order the{" "}
