@@ -1,11 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import ScheduleTable, { type ScheduleItem } from "@/components/ScheduleTable";
-import WeatherWidget from "@/components/WeatherWidget";
-
-const EVENT_DATE = "2026-10-24";
-const DALLAS_LATITUDE = 32.7767;
-const DALLAS_LONGITUDE = -96.797;
 
 // Add `description`, `photos` (array of image URLs), and/or `links` (array of
 // { label, url }) to any row below to give it an expand arrow with more info.
@@ -103,55 +98,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Group T-Shirt & Weather */}
+      {/* Group T-Shirt */}
       <section className="mx-auto max-w-5xl px-6 pt-10">
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="rounded-2xl border border-[var(--line)] bg-ink-2 p-6 sm:p-8">
-            <div className="relative mx-auto h-32 w-32 overflow-hidden rounded-xl bg-white">
-              <Image
-                src="/tshirt-preview.png"
-                alt="Reunion group t-shirt preview"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <p className="mt-5 text-xs uppercase tracking-[0.25em] text-brass">
+        <div className="rounded-2xl border border-[var(--line)] bg-ink-2 p-6 sm:flex sm:items-center sm:gap-8 sm:p-8">
+          <div className="relative mx-auto h-36 w-36 shrink-0 overflow-hidden rounded-xl bg-white sm:mx-0">
+            <Image
+              src="/tshirt-preview.png"
+              alt="Reunion group t-shirt preview"
+              fill
+              className="object-contain"
+            />
+          </div>
+          <div className="mt-6 sm:mt-0 sm:flex-1">
+            <p className="text-xs uppercase tracking-[0.25em] text-brass">
               Group T-Shirt
             </p>
-            <h2 className="mt-3 font-display text-2xl text-paper">
+            <h2 className="mt-3 font-display text-2xl text-paper sm:text-3xl">
               Wear it for the group picture
             </h2>
-            <p className="mt-3 text-paper-dim">
+            <p className="mt-3 max-w-xl text-paper-dim">
               Please self order the{" "}
               <strong className="font-semibold text-paper">black</strong>{" "}
               t-shirt and wear it when you come! You don&rsquo;t want to be
               the odd person out in the group picture.
             </p>
-            <a
-              href="https://a.co/d/0fklVY7I"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 block whitespace-nowrap rounded-full bg-brass px-7 py-3 text-center text-sm font-medium text-ink transition-opacity hover:opacity-90"
-            >
-              Buy on Amazon
-            </a>
           </div>
-
-          <div className="rounded-2xl border border-[var(--line)] bg-ink-2 p-6 sm:p-8">
-            <p className="text-xs uppercase tracking-[0.25em] text-brass">
-              Weather
-            </p>
-            <h2 className="mt-3 font-display text-2xl text-paper">
-              Dallas on the day
-            </h2>
-            <div className="mt-5">
-              <WeatherWidget
-                eventDate={EVENT_DATE}
-                latitude={DALLAS_LATITUDE}
-                longitude={DALLAS_LONGITUDE}
-              />
-            </div>
-          </div>
+          <a
+            href="https://a.co/d/0fklVY7I"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 block whitespace-nowrap rounded-full bg-brass px-7 py-3 text-center text-sm font-medium text-ink transition-opacity hover:opacity-90 sm:mt-0 sm:w-auto sm:shrink-0"
+          >
+            Buy on Amazon
+          </a>
         </div>
       </section>
 
