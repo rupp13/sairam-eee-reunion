@@ -98,42 +98,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Group T-Shirt */}
-      <section className="mx-auto max-w-5xl px-6 pt-10">
-        <div className="rounded-2xl border border-[var(--line)] bg-ink-2 p-6 sm:flex sm:items-center sm:gap-8 sm:p-8">
-          <div className="relative mx-auto h-36 w-36 shrink-0 overflow-hidden rounded-xl bg-white sm:mx-0">
-            <Image
-              src="/tshirt-preview.png"
-              alt="Reunion group t-shirt preview"
-              fill
-              className="object-contain"
-            />
-          </div>
-          <div className="mt-6 sm:mt-0 sm:flex-1">
-            <p className="text-xs uppercase tracking-[0.25em] text-brass">
-              Group T-Shirt
-            </p>
-            <h2 className="mt-3 font-display text-2xl text-paper sm:text-3xl">
-              Meetup T-shirt
-            </h2>
-            <p className="mt-3 max-w-xl text-paper-dim">
-              Please self order the{" "}
-              <strong className="font-semibold text-paper">black</strong>{" "}
-              t-shirt and wear it when you come! You don&rsquo;t want to be
-              the odd person out in the group picture.
-            </p>
-          </div>
-          <a
-            href="https://a.co/d/0fklVY7I"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 block whitespace-nowrap rounded-full bg-brass px-7 py-3 text-center text-sm font-medium text-ink transition-opacity hover:opacity-90 sm:mt-0 sm:w-auto sm:shrink-0"
-          >
-            Buy on Amazon
-          </a>
-        </div>
-      </section>
-
       {/* Schedule */}
       <section className="mx-auto max-w-5xl px-6 pt-12 pb-20">
         <h2 className="font-display text-3xl text-paper sm:text-4xl">
